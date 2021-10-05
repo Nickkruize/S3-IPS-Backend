@@ -11,10 +11,14 @@ namespace S3_webshop.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        private readonly List<Product> products = new List<Product>
+            {
+                new Product(1, "testProduct1"),
+                new Product(2, "testProduct2"),
+                new Product(3, "testProduct3"),
+                new Product(4, "testProduct4"),
+                new Product(5, "testProduct5")
+            };
 
         private readonly ILogger<ProductController> _logger;
 
@@ -26,14 +30,12 @@ namespace S3_webshop.Controllers
         [HttpGet]
         public IEnumerable<Product> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new Product
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return products;
+        }
+
+        public Product Get(int id)
+        {
+            return products.Find(item => item.Id == id);
         }
     }
 }

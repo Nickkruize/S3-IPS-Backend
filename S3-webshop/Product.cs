@@ -4,12 +4,20 @@ namespace S3_webshop
 {
     public class Product
     {
-        public DateTime Date { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public double Price { get; set; }
 
-        public int TemperatureC { get; set; }
+        public Product()
+        {
 
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        }
 
-        public string Summary { get; set; }
+        public Product(int id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
     }
 }
