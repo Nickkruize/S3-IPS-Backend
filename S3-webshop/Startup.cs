@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using DAL;
 
 namespace S3_webshop
 {
@@ -25,7 +28,18 @@ namespace S3_webshop
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<WebshopContext>(optionsbuilder =>
+            {
+                optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                //optionsbuilder.UseLazyLoadingProxies();
+            });
+
             services.AddControllers();
+
+            services.AddCors(c => c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()));
+            //services.AddControllers().AddNewtonsoftJson(options =>
+            //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            //);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,6 +55,8 @@ namespace S3_webshop
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(options => options.AllowAnyOrigin());
 
             app.UseEndpoints(endpoints =>
             {

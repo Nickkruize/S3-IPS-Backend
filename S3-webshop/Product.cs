@@ -2,7 +2,7 @@ using System;
 
 namespace S3_webshop
 {
-    public class WeatherForecast
+    public class Product
     {
         public DateTime Date { get; set; }
 
