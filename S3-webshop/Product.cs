@@ -14,10 +14,12 @@ namespace S3_webshop
 
         }
 
-        public Product(int id, string name)
+        public Product(int id, string name, string desc, double price)
         {
             Id = id;
             Name = name;
+            Description = desc;
+            Price = price;
         }
     }
 }

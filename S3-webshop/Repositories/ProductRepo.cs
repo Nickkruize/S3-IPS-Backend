@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace S3_webshop.Repositories
 {
-    public class ProductRepo : GenericRepository<Product>, IProductRepo
+    public class ProductRepo : GenericRepository<DAL.ContextModels.Product>, IProductRepo
     {
         private readonly WebshopContext _context;
 
@@ -17,11 +17,11 @@ namespace S3_webshop.Repositories
             _context = db;
         }
 
-        public IEnumerable<Product> GetAll()
-        {
-            List<DAL.ContextModels.Product> products = _context.Products.ToList();
+        //public IEnumerable<Product> GetAll()
+        //{
+        //    List<DAL.ContextModels.Product> products = _context.Products.ToList();
             
-            return ModelConverter.ProductsContextModelsToProductViewModels(products);
-        }
+        //    return ModelConverter.ProductsContextModelsToProductViewModels(products);
+        //}
     }
 }

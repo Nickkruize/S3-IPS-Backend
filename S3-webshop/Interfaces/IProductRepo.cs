@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace S3_webshop.Interfaces
 {
-    public interface IProductRepo : IGenericRepository<Product>
+    public interface IProductRepo : IGenericRepository<DAL.ContextModels.Product>
     {
     }
 }

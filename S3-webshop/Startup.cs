@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using DAL;
+using S3_webshop.Interfaces;
+using S3_webshop.Repositories;
 
 namespace S3_webshop
 {
@@ -34,12 +28,13 @@ namespace S3_webshop
                 //optionsbuilder.UseLazyLoadingProxies();
             });
 
-            services.AddControllers();
+            services.AddTransient<IProductRepo, ProductRepo>();
+
 
             services.AddCors(c => c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()));
-            //services.AddControllers().AddNewtonsoftJson(options =>
-            //    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            //);
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

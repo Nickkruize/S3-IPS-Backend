@@ -7,7 +7,7 @@ namespace S3_webshop
 {
     public static class ModelConverter
     {
-        public static List<Product> ProductsContextModelsToProductViewModels(List<DAL.ContextModels.Product> contextmodels)
+        public static List<Product> ProductsContextModelsToProductViewModels(IEnumerable<DAL.ContextModels.Product> contextmodels)
         {
             List<Product> products = new List<Product>();
             foreach (var model in contextmodels)
@@ -26,6 +26,19 @@ namespace S3_webshop
                 Name = contextmodel.Name,
                 Description = contextmodel.Description,
                 Price = contextmodel.Price
+            };
+
+            return result;
+        }
+
+        public static DAL.ContextModels.Product ProductViewModelToProductContextModel(Product viewmodel)
+        {
+            DAL.ContextModels.Product result = new DAL.ContextModels.Product
+            {
+                Id = viewmodel.Id,
+                Name = viewmodel.Name,
+                Description = viewmodel.Description,
+                Price = viewmodel.Price
             };
 
             return result;
