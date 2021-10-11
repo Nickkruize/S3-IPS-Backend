@@ -51,7 +51,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> Put(int id, Product product)
         {
             DAL.ContextModels.Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
 
@@ -74,11 +74,11 @@ namespace S3_webshop.Controllers
                 }
                 else
                 {
-                    throw;
+                    return BadRequest("Generic Error");
                 }
             }
 
-            return NoContent();
+            return CreatedAtAction("Get", new { id = id }, id);
         }
 
         [HttpPost]
