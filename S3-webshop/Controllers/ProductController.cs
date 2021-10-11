@@ -82,14 +82,27 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostProduct(Product input)
+        public IActionResult Post(Product input)
         {
-            DAL.ContextModels.Product product = ModelConverter.ProductViewModelToProductContextModel(input);
+            //DAL.ContextModels.Product product = ModelConverter.ProductViewModelToProductContextModel(input);
+            DAL.ContextModels.Product product = new DAL.ContextModels.Product
+            {
+                Description = input.Description,
+                Name = input.Name,
+                Price = input.Price
+            };
 
-            _productRepo.Create(product);
-            _productRepo.Save();
+            try
+            {
+                _productRepo.AddProduct(product);
+                _productRepo.Save();
 
-            return CreatedAtAction("Get", new { id = input.Id }, input);
+                return CreatedAtAction("Get", new { id = product.Id }, product);
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         [HttpDelete("{id}")]

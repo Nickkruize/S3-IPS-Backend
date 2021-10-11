@@ -1,5 +1,6 @@
 ﻿using DAL;
 using GenericBusinessLogic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using S3_webshop.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,13 @@ namespace S3_webshop.Repositories
         public ProductRepo(WebshopContext db) : base(db)
         {
             _context = db;
+        }
+
+        public int AddProduct(DAL.ContextModels.Product product)
+        {
+                EntityEntry<DAL.ContextModels.Product> created = this._context.Products.Add(product);
+                _context.SaveChanges();
+                return created.Entity.Id;
         }
 
         //public IEnumerable<Product> GetAll()

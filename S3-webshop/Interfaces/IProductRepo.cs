@@ -1,4 +1,5 @@
 ﻿using GenericBusinessLogic;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,5 +9,7 @@ namespace S3_webshop.Interfaces
 {
     public interface IProductRepo : IGenericRepository<DAL.ContextModels.Product>
     {
+        int AddProduct(DAL.ContextModels.Product product);
+
     }
 }
