@@ -25,11 +25,9 @@ namespace S3_webshop.Repositories
                 return created.Entity.Id;
         }
 
-        //public IEnumerable<Product> GetAll()
-        //{
-        //    List<DAL.ContextModels.Product> products = _context.Products.ToList();
-            
-        //    return ModelConverter.ProductsContextModelsToProductViewModels(products);
-        //}
+        public IEnumerable<DAL.ContextModels.Product> FindAll2()
+        {
+            return this._context.Products.ToList();
+        }
     }
 }

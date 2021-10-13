@@ -1,4 +1,7 @@
+using DAL.ContextModels;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace S3_webshop
 {
@@ -8,6 +11,7 @@ namespace S3_webshop
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
+        public List<Category> Categories { get; set; }
 
         public Product()
         {
@@ -20,6 +24,11 @@ namespace S3_webshop
             Name = name;
             Description = desc;
             Price = price;
+        }
+
+        public void AddCategory (Category category)
+        {
+            Categories.Add(category);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL.ContextModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,6 +28,11 @@ namespace S3_webshop
                 Description = contextmodel.Description,
                 Price = contextmodel.Price
             };
+
+            foreach (ProductCategory cat in contextmodel.ProductCategories)
+            {
+                result.AddCategory(cat.Category);
+            }
 
             return result;
         }

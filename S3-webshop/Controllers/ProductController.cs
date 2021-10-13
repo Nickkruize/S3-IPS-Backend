@@ -14,14 +14,6 @@ namespace S3_webshop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepo _productRepo;
-        private readonly List<Product> products = new List<Product>
-            {
-                new Product(1, "testProduct1", "this is a test product", 9.99),
-                new Product(2, "testProduct2", "this is a test product", 21.99),
-                new Product(3, "testProduct3", "this is a test product", 10.50),
-                new Product(4, "testProduct4", "this is a test product", 0.99),
-                new Product(5, "testProduct5", "this is a test product", 100.99)
-            };
 
         private readonly ILogger<ProductController> _logger;
 
@@ -34,7 +26,8 @@ namespace S3_webshop.Controllers
         [HttpGet]
         public IEnumerable<Product> Get()
         {
-            return ModelConverter.ProductsContextModelsToProductViewModels(_productRepo.FindAll());
+            List<DAL.ContextModels.Product> products = _productRepo.FindAll().ToList();
+            return ModelConverter.ProductsContextModelsToProductViewModels(products);
         }
 
         [HttpGet("{id}")]

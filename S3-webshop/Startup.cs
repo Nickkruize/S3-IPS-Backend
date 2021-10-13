@@ -25,7 +25,6 @@ namespace S3_webshop
             services.AddDbContext<WebshopContext>(optionsbuilder =>
             {
                 optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                //optionsbuilder.UseLazyLoadingProxies();
             });
 
             services.AddTransient<IProductRepo, ProductRepo>();
