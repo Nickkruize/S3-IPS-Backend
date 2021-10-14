@@ -11,11 +11,11 @@ namespace S3_webshop
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
-        public List<Category> Categories { get; set; }
+        public List<int> CategorieIds { get; set; }
 
         public Product()
         {
-
+            CategorieIds = new List<int>();
         }
 
         public Product(int id, string name, string desc, double price)
@@ -24,11 +24,12 @@ namespace S3_webshop
             Name = name;
             Description = desc;
             Price = price;
+            CategorieIds = new List<int>();
         }
 
-        public void AddCategory (Category category)
+        public void AddCategory (int categoryId)
         {
-            Categories.Add(category);
+            CategorieIds.Add(categoryId);
         }
     }
 }

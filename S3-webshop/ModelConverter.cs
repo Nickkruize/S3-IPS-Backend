@@ -31,7 +31,7 @@ namespace S3_webshop
 
             foreach (ProductCategory cat in contextmodel.ProductCategories)
             {
-                result.AddCategory(cat.Category);
+                result.AddCategory(cat.CategoryId);
             }
 
             return result;

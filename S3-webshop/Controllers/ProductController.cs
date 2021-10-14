@@ -26,7 +26,7 @@ namespace S3_webshop.Controllers
         [HttpGet]
         public IEnumerable<Product> Get()
         {
-            List<DAL.ContextModels.Product> products = _productRepo.FindAll().ToList();
+            List<DAL.ContextModels.Product> products = _productRepo.FindAllWithProductCategories().ToList();
             return ModelConverter.ProductsContextModelsToProductViewModels(products);
         }
 

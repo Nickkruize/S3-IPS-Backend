@@ -10,6 +10,6 @@ namespace S3_webshop.Interfaces
     public interface IProductRepo : IGenericRepository<DAL.ContextModels.Product>
     {
         int AddProduct(DAL.ContextModels.Product product);
-
+        IEnumerable<DAL.ContextModels.Product> FindAllWithProductCategories();
     }
 }
