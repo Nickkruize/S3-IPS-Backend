@@ -1,6 +1,7 @@
 ﻿using DAL;
 using GenericBusinessLogic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore;
 using S3_webshop.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -25,11 +26,9 @@ namespace S3_webshop.Repositories
                 return created.Entity.Id;
         }
 
-        //public IEnumerable<Product> GetAll()
-        //{
-        //    List<DAL.ContextModels.Product> products = _context.Products.ToList();
-            
-        //    return ModelConverter.ProductsContextModelsToProductViewModels(products);
-        //}
+        public IEnumerable<DAL.ContextModels.Product> FindAllWithProductCategories()
+        {
+            return this._context.Products.Include(p => p.ProductCategories).ThenInclude(q => q.Category).ToList();
+        }
     }
 }

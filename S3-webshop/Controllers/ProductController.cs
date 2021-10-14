@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using DAL.ContextModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,31 +16,27 @@ namespace S3_webshop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepo _productRepo;
-        private readonly List<Product> products = new List<Product>
-            {
-                new Product(1, "testProduct1", "this is a test product", 9.99),
-                new Product(2, "testProduct2", "this is a test product", 21.99),
-                new Product(3, "testProduct3", "this is a test product", 10.50),
-                new Product(4, "testProduct4", "this is a test product", 0.99),
-                new Product(5, "testProduct5", "this is a test product", 100.99)
-            };
+        private readonly IMapper mapper;
 
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(ILogger<ProductController> logger, IProductRepo productRepo)
+        public ProductController(ILogger<ProductController> logger, IProductRepo productRepo, IMapper mapper)
         {
             _logger = logger;
             _productRepo = productRepo;
+            this.mapper = mapper;
         }
 
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public IEnumerable<ProductResource> Get()
         {
-            return ModelConverter.ProductsContextModelsToProductViewModels(_productRepo.FindAll());
+            List<DAL.ContextModels.Product> products = _productRepo.FindAllWithProductCategories().ToList();
+            //return mapper.Map<List<Product>, List<ProductResource>>(products);
+            return ModelConverter.ProductsContextModelsToProductViewModels(products);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public ActionResult<ProductResource> Get(int id)
         {
             
             if (_productRepo.GetById(id) == null)
@@ -46,12 +44,12 @@ namespace S3_webshop.Controllers
                 return NotFound();
             }
 
-            Product product = ModelConverter.ProductContextModelToProductViewModel(_productRepo.GetById(id));
+            ProductResource product = ModelConverter.ProductContextModelToProductViewModel(_productRepo.GetById(id));
             return Ok(product);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Product product)
+        public async Task<IActionResult> Put(int id, ProductResource product)
         {
             DAL.ContextModels.Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
 
@@ -82,7 +80,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Product input)
+        public IActionResult Post(ProductResource input)
         {
             //DAL.ContextModels.Product product = ModelConverter.ProductViewModelToProductContextModel(input);
             DAL.ContextModels.Product product = new DAL.ContextModels.Product
@@ -106,7 +104,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<Product> DeleteProduct(int id)
+        public ActionResult<ProductResource> DeleteProduct(int id)
         {
             DAL.ContextModels.Product product = _productRepo.GetById(id);
             if (product == null)
@@ -120,6 +118,7 @@ namespace S3_webshop.Controllers
             return ModelConverter.ProductContextModelToProductViewModel(product);
         }
 
+        [NonAction]
         private bool ProductExists(int id)
         {
             if (_productRepo.GetById(id) != null)
