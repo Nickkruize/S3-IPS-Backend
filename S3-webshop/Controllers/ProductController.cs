@@ -24,7 +24,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public IEnumerable<ProductResource> Get()
         {
             List<DAL.ContextModels.Product> products = _productRepo.FindAllWithProductCategories().ToList();
             return ModelConverter.ProductsContextModelsToProductViewModels(products);
@@ -39,12 +39,12 @@ namespace S3_webshop.Controllers
                 return NotFound();
             }
 
-            Product product = ModelConverter.ProductContextModelToProductViewModel(_productRepo.GetById(id));
+            ProductResource product = ModelConverter.ProductContextModelToProductViewModel(_productRepo.GetById(id));
             return Ok(product);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Product product)
+        public async Task<IActionResult> Put(int id, ProductResource product)
         {
             DAL.ContextModels.Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
 
@@ -75,7 +75,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(Product input)
+        public IActionResult Post(ProductResource input)
         {
             //DAL.ContextModels.Product product = ModelConverter.ProductViewModelToProductContextModel(input);
             DAL.ContextModels.Product product = new DAL.ContextModels.Product
@@ -99,7 +99,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<Product> DeleteProduct(int id)
+        public ActionResult<ProductResource> DeleteProduct(int id)
         {
             DAL.ContextModels.Product product = _productRepo.GetById(id);
             if (product == null)
@@ -113,6 +113,7 @@ namespace S3_webshop.Controllers
             return ModelConverter.ProductContextModelToProductViewModel(product);
         }
 
+        [NonAction]
         private bool ProductExists(int id)
         {
             if (_productRepo.GetById(id) != null)

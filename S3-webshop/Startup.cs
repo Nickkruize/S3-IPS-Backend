@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using DAL;
 using S3_webshop.Interfaces;
 using S3_webshop.Repositories;
+using Microsoft.OpenApi.Models;
 
 namespace S3_webshop
 {
@@ -27,6 +28,8 @@ namespace S3_webshop
                 optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+
+
             services.AddTransient<IProductRepo, ProductRepo>();
 
 
@@ -34,6 +37,11 @@ namespace S3_webshop
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +50,8 @@ namespace S3_webshop
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebShop v1"));
             }
 
             app.UseHttpsRedirection();

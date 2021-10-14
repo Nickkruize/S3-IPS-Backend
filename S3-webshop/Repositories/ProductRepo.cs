@@ -28,7 +28,7 @@ namespace S3_webshop.Repositories
 
         public IEnumerable<DAL.ContextModels.Product> FindAllWithProductCategories()
         {
-            return this._context.Products.Include(p => p.ProductCategories).ToList();
+            return this._context.Products.Include(p => p.ProductCategories).ThenInclude(q => q.Category).ToList();
         }
     }
 }
