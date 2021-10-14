@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using DAL.ContextModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,24 +16,27 @@ namespace S3_webshop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepo _productRepo;
+        private readonly IMapper mapper;
 
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(ILogger<ProductController> logger, IProductRepo productRepo)
+        public ProductController(ILogger<ProductController> logger, IProductRepo productRepo, IMapper mapper)
         {
             _logger = logger;
             _productRepo = productRepo;
+            this.mapper = mapper;
         }
 
         [HttpGet]
         public IEnumerable<ProductResource> Get()
         {
             List<DAL.ContextModels.Product> products = _productRepo.FindAllWithProductCategories().ToList();
+            //return mapper.Map<List<Product>, List<ProductResource>>(products);
             return ModelConverter.ProductsContextModelsToProductViewModels(products);
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        public ActionResult<ProductResource> Get(int id)
         {
             
             if (_productRepo.GetById(id) == null)
