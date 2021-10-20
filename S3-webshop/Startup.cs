@@ -5,9 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DAL;
-using S3_webshop.Interfaces;
-using S3_webshop.Repositories;
 using Microsoft.OpenApi.Models;
+using Repositories;
 
 namespace S3_webshop
 {

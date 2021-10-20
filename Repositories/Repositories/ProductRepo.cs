@@ -1,17 +1,15 @@
-﻿using DAL;
-using GenericBusinessLogic;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore;
-using S3_webshop.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL;
 using DAL.ContextModels;
 
-namespace S3_webshop.Repositories
+namespace Repositories
 {
-    public class ProductRepo : GenericRepository<DAL.ContextModels.Product>, IProductRepo
+    public class ProductRepo : GenericRepository<Product>, IProductRepo
     {
         private readonly WebshopContext _context;
 

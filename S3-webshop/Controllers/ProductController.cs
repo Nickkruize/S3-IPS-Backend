@@ -7,7 +7,7 @@ using DAL.ContextModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using S3_webshop.Interfaces;
+using Repositories;
 
 namespace S3_webshop.Controllers
 {
@@ -30,7 +30,7 @@ namespace S3_webshop.Controllers
         [HttpGet]
         public IEnumerable<ProductResource> Get()
         {
-            List<DAL.ContextModels.Product> products = _productRepo.FindAllWithProductCategories().ToList();
+            List<Product> products = _productRepo.FindAllWithProductCategories().ToList();
             return mapper.Map<List<Product>, List<ProductResource>>(products);
         }
 
@@ -50,7 +50,7 @@ namespace S3_webshop.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, ProductResource product)
         {
-            DAL.ContextModels.Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
+            Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
 
             if (id != product.Id)
             {
@@ -81,8 +81,7 @@ namespace S3_webshop.Controllers
         [HttpPost]
         public IActionResult Post(ProductResource input)
         {
-            //DAL.ContextModels.Product product = ModelConverter.ProductViewModelToProductContextModel(input);
-            DAL.ContextModels.Product product = new DAL.ContextModels.Product
+            Product product = new Product
             {
                 Description = input.Description,
                 Name = input.Name,
@@ -105,7 +104,7 @@ namespace S3_webshop.Controllers
         [HttpDelete("{id}")]
         public ActionResult<ProductResource> DeleteProduct(int id)
         {
-            DAL.ContextModels.Product product = _productRepo.GetById(id);
+            Product product = _productRepo.GetById(id);
             if (product == null)
             {
                 return NotFound();

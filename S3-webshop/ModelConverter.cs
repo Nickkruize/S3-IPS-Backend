@@ -8,7 +8,7 @@ namespace S3_webshop
 {
     public static class ModelConverter
     {
-        public static List<ProductResource> ProductsContextModelsToProductViewModels(IEnumerable<DAL.ContextModels.Product> contextmodels)
+        public static List<ProductResource> ProductsContextModelsToProductViewModels(IEnumerable<Product> contextmodels)
         {
             List<ProductResource> products = new List<ProductResource>();
             foreach (var model in contextmodels)
@@ -19,7 +19,7 @@ namespace S3_webshop
             return products;
         }
 
-        public static ProductResource ProductContextModelToProductViewModel(DAL.ContextModels.Product contextmodel)
+        public static ProductResource ProductContextModelToProductViewModel(Product contextmodel)
         {
             ProductResource result = new ProductResource
             {
@@ -42,9 +42,9 @@ namespace S3_webshop
             return result;
         }
 
-        public static DAL.ContextModels.Product ProductViewModelToProductContextModel(ProductResource viewmodel)
+        public static Product ProductViewModelToProductContextModel(ProductResource viewmodel)
         {
-            DAL.ContextModels.Product result = new DAL.ContextModels.Product
+            Product result = new Product
             {
                 Id = viewmodel.Id,
                 Name = viewmodel.Name,
