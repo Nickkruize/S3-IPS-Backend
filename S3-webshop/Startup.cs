@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DAL;
 using Microsoft.OpenApi.Models;
-using Repositories;
+using Repositories.Interfaces;
+using Repositories.Repositories;
 
 namespace S3_webshop
 {
@@ -22,6 +23,13 @@ namespace S3_webshop
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddDbContext<WebshopContext>(optionsbuilder =>
             {
                 optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -30,9 +38,8 @@ namespace S3_webshop
             services.AddAutoMapper(typeof(Startup));
 
             services.AddTransient<IProductRepo, ProductRepo>();
+            services.AddTransient<ICategoryRepo, CategoryRepo>();
 
-
-            services.AddCors(c => c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()));
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
@@ -46,6 +53,7 @@ namespace S3_webshop
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -57,9 +65,9 @@ namespace S3_webshop
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseCors("MyPolicy");
 
-            app.UseCors(options => options.AllowAnyOrigin());
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

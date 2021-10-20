@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Repositories
+namespace Repositories.Interfaces
 {
     public interface IProductRepo : IGenericRepository<Product>
     {

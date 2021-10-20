@@ -4,13 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories;
+using Repositories.Interfaces;
+using S3_webshop.Resources;
 
 namespace S3_webshop.Controllers
 {
+    [EnableCors("MyPolicy")]
     [ApiController]
     [Route("[controller]")]
     public class ProductController : ControllerBase
@@ -35,20 +39,19 @@ namespace S3_webshop.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ProductResource> Get(int id)
-        {
-            
+        public ActionResult<ProductWithCategoriesResource> Get(int id)
+        {     
             if (_productRepo.GetById(id) == null)
             {
                 return NotFound();
             }
 
-            ProductResource product = mapper.Map<Product, ProductResource>(_productRepo.FindByIdWithCategoires(id));
+            ProductWithCategoriesResource product = mapper.Map<Product, ProductWithCategoriesResource>(_productRepo.FindByIdWithCategoires(id));
             return Ok(product);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, ProductResource product)
+        public IActionResult Put(int id, ProductResource product)
         {
             Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
 
@@ -102,18 +105,25 @@ namespace S3_webshop.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult<ProductResource> DeleteProduct(int id)
+        public IActionResult DeleteProduct(int id)
         {
             Product product = _productRepo.GetById(id);
+
             if (product == null)
             {
                 return NotFound();
             }
 
-            _productRepo.Delete(product);
-            _productRepo.Save();
-
-            return ModelConverter.ProductContextModelToProductViewModel(product);
+            try
+            {
+                _productRepo.Delete(product);
+                _productRepo.Save();
+                return Accepted("Product deleted");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [NonAction]

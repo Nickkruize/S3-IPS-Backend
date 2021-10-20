@@ -6,8 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using DAL;
 using DAL.ContextModels;
+using Repositories.Interfaces;
 
-namespace Repositories
+namespace Repositories.Repositories
 {
     public class ProductRepo : GenericRepository<Product>, IProductRepo
     {

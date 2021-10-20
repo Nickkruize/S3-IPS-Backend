@@ -2,46 +2,146 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using DAL.ContextModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Repositories.Interfaces;
+using S3_webshop.Resources;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace S3_webshop.Controllers
 {
+    [EnableCors("MyPolicy")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
+        private readonly ICategoryRepo categoryRepo;
+        private readonly IMapper mapper;
+
+        public CategoryController(ICategoryRepo categoryRepo, IMapper mapper)
+        {
+            this.categoryRepo = categoryRepo;
+            this.mapper = mapper;
+        }
         // GET: api/<CategoryController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<CategoryResource> Get()
         {
-            return new string[] { "value1", "value2" };
+            List<Category> categories = categoryRepo.FindAll().ToList();
+            return mapper.Map<List<Category>, List<CategoryResource>>(categories);
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public ActionResult<CategoryResource> Get(int id)
         {
-            return "value";
+            if (categoryRepo.GetById(id) == null)
+            {
+                return NotFound();
+            }
+
+            Category category = categoryRepo.FindByIdWithProducts(id);
+            CategoryProductResource result = new CategoryProductResource
+            {
+                Id = category.Id,
+                Name = category.Name,
+            };
+
+            foreach (var item in category.ProductCategories)
+            {
+                result.Products.Add(mapper.Map<Product, ProductResource>(item.Product));
+            }
+
+            //CategoryResource result = mapper.Map<Category, CategoryResource>(category);
+            return Ok(result);
         }
 
         // POST api/<CategoryController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] CategoryResource vm)
         {
+            Category category = mapper.Map<CategoryResource, Category>(vm);
+
+            try
+            {
+                categoryRepo.Create(category);
+                categoryRepo.Save();
+
+                return CreatedAtAction("Get", new { id = category.Id }, category);
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Put(int id, [FromBody] CategoryResource vm)
         {
+            Category category = mapper.Map<CategoryResource, Category>(vm);
+
+            if (id != vm.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                categoryRepo.Update(category);
+                categoryRepo.Save();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (!CategoryExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+
+            return CreatedAtAction("Get", new { id }, category);
         }
 
         // DELETE api/<CategoryController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            Category category = categoryRepo.GetById(id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                categoryRepo.Delete(category);
+                categoryRepo.Save();
+                return Accepted("category deleted");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [NonAction]
+        private bool CategoryExists(int id)
+        {
+            if (categoryRepo.GetById(id) != null)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
