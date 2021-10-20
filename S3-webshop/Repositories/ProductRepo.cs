@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL.ContextModels;
 
 namespace S3_webshop.Repositories
 {
@@ -19,16 +20,21 @@ namespace S3_webshop.Repositories
             _context = db;
         }
 
-        public int AddProduct(DAL.ContextModels.Product product)
+        public int AddProduct(Product product)
         {
-                EntityEntry<DAL.ContextModels.Product> created = this._context.Products.Add(product);
+                EntityEntry<Product> created = this._context.Products.Add(product);
                 _context.SaveChanges();
                 return created.Entity.Id;
         }
 
-        public IEnumerable<DAL.ContextModels.Product> FindAllWithProductCategories()
+        public IEnumerable<Product> FindAllWithProductCategories()
         {
             return this._context.Products.Include(p => p.ProductCategories).ThenInclude(q => q.Category).ToList();
+        }
+
+        public Product FindByIdWithCategoires(int id)
+        {
+            return this._context.Products.Include(p => p.ProductCategories).ThenInclude(q => q.Category).FirstOrDefault(e => e.Id == id);
         }
     }
 }

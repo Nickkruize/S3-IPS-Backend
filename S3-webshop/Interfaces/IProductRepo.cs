@@ -1,4 +1,5 @@
-﻿using GenericBusinessLogic;
+﻿using DAL.ContextModels;
+using GenericBusinessLogic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,6 @@ namespace S3_webshop.Interfaces
     {
         int AddProduct(DAL.ContextModels.Product product);
         IEnumerable<DAL.ContextModels.Product> FindAllWithProductCategories();
+        Product FindByIdWithCategoires(int id);
     }
 }

@@ -12,7 +12,8 @@ namespace S3_webshop.Configuration
         public MapperProfile()
         {
             CreateMap<ProductResource, Product>();
-            CreateMap<Product, ProductResource>();
+            CreateMap<Product, ProductResource>()
+                .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.ProductCategories.Select(y => y.Category).ToList()));
         }
 
     }

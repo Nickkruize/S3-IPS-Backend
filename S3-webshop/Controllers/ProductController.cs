@@ -31,8 +31,7 @@ namespace S3_webshop.Controllers
         public IEnumerable<ProductResource> Get()
         {
             List<DAL.ContextModels.Product> products = _productRepo.FindAllWithProductCategories().ToList();
-            //return mapper.Map<List<Product>, List<ProductResource>>(products);
-            return ModelConverter.ProductsContextModelsToProductViewModels(products);
+            return mapper.Map<List<Product>, List<ProductResource>>(products);
         }
 
         [HttpGet("{id}")]
@@ -44,7 +43,7 @@ namespace S3_webshop.Controllers
                 return NotFound();
             }
 
-            ProductResource product = ModelConverter.ProductContextModelToProductViewModel(_productRepo.GetById(id));
+            ProductResource product = mapper.Map<Product, ProductResource>(_productRepo.FindByIdWithCategoires(id));
             return Ok(product);
         }
 
