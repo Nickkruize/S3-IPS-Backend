@@ -19,7 +19,7 @@ namespace S3_webshop.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepo _productRepo;
+        private readonly IProductRepo productRepo;
         private readonly IMapper mapper;
 
         private readonly ILogger<ProductController> _logger;
@@ -27,31 +27,32 @@ namespace S3_webshop.Controllers
         public ProductController(ILogger<ProductController> logger, IProductRepo productRepo, IMapper mapper)
         {
             _logger = logger;
-            _productRepo = productRepo;
+            this.productRepo = productRepo;
             this.mapper = mapper;
         }
 
         [HttpGet]
         public IEnumerable<ProductResource> Get()
         {
-            List<Product> products = _productRepo.FindAllWithProductCategories().ToList();
+            List<Product> products = productRepo.FindAllWithProductCategories().ToList();
             return mapper.Map<List<Product>, List<ProductResource>>(products);
         }
 
         [HttpGet("{id}")]
         public ActionResult<ProductWithCategoriesResource> Get(int id)
         {     
-            if (_productRepo.GetById(id) == null)
+            if (productRepo.GetById(id) == null)
             {
                 return NotFound();
             }
 
-            ProductWithCategoriesResource product = mapper.Map<Product, ProductWithCategoriesResource>(_productRepo.FindByIdWithCategoires(id));
-            return Ok(product);
+            Product product = productRepo.FindByIdWithCategoires(id);
+            ProductWithCategoriesResource result = mapper.Map<Product, ProductWithCategoriesResource>(product);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, ProductResource product)
+        public IActionResult Put(int id, ProductResource product, int categoryId)
         {
             Product product1 = mapper.Map<ProductResource, Product>(product);
 
@@ -60,11 +61,11 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            _productRepo.Update(product1);
+            productRepo.Update(product1);
 
             try
             {
-                _productRepo.Save();
+                productRepo.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -93,8 +94,8 @@ namespace S3_webshop.Controllers
 
             try
             {
-                _productRepo.AddProduct(product);
-                _productRepo.Save();
+                productRepo.AddProduct(product);
+                productRepo.Save();
 
                 return CreatedAtAction("Get", new { id = product.Id }, product);
             }
@@ -107,7 +108,7 @@ namespace S3_webshop.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
-            Product product = _productRepo.GetById(id);
+            Product product = productRepo.GetById(id);
 
             if (product == null)
             {
@@ -116,8 +117,8 @@ namespace S3_webshop.Controllers
 
             try
             {
-                _productRepo.Delete(product);
-                _productRepo.Save();
+                productRepo.Delete(product);
+                productRepo.Save();
                 return NoContent();
             }
             catch (Exception ex)
@@ -129,7 +130,7 @@ namespace S3_webshop.Controllers
         [NonAction]
         private bool ProductExists(int id)
         {
-            if (_productRepo.GetById(id) != null)
+            if (productRepo.GetById(id) != null)
             {
                 return true;
             }
