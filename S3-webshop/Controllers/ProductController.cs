@@ -53,7 +53,6 @@ namespace S3_webshop.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, ProductResource product)
         {
-            //Product product1 = ModelConverter.ProductViewModelToProductContextModel(product);
             Product product1 = mapper.Map<ProductResource, Product>(product);
 
             if (id != product.Id)
@@ -119,7 +118,7 @@ namespace S3_webshop.Controllers
             {
                 _productRepo.Delete(product);
                 _productRepo.Save();
-                return Accepted("Product deleted");
+                return NoContent();
             }
             catch (Exception ex)
             {

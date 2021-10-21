@@ -45,16 +45,6 @@ namespace S3_webshop.Controllers
             }
 
             Category category = categoryRepo.FindByIdWithProducts(id);
-            //CategoryProductResource result = new CategoryProductResource
-            //{
-            //    Id = category.Id,
-            //    Name = category.Name,
-            //};
-
-            //foreach (var item in category.Products)
-            //{
-            //    result.Products.Add(mapper.Map<Product, ProductResource>(item));
-            //}
 
             CategoryProductResource result = mapper.Map<Category, CategoryProductResource>(category);
             return Ok(result);

@@ -11,11 +11,9 @@ namespace S3_webshop.Resources
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
-        public List<Category> Categories { get; set; }
 
         public ProductResource()
         {
-            Categories = new List<Category>();
         }
 
         public ProductResource(int id, string name, string desc, double price)
@@ -24,12 +22,6 @@ namespace S3_webshop.Resources
             Name = name;
             Description = desc;
             Price = price;
-            Categories = new List<Category>();
-        }
-
-        public void AddCategory (Category category)
-        {
-            Categories.Add(category);
         }
     }
 }
