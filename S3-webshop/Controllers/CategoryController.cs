@@ -37,7 +37,7 @@ namespace S3_webshop.Controllers
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
-        public ActionResult<CategoryResource> Get(int id)
+        public ActionResult<CategoryProductResource> Get(int id)
         {
             if (categoryRepo.GetById(id) == null)
             {
@@ -45,18 +45,18 @@ namespace S3_webshop.Controllers
             }
 
             Category category = categoryRepo.FindByIdWithProducts(id);
-            CategoryProductResource result = new CategoryProductResource
-            {
-                Id = category.Id,
-                Name = category.Name,
-            };
+            //CategoryProductResource result = new CategoryProductResource
+            //{
+            //    Id = category.Id,
+            //    Name = category.Name,
+            //};
 
-            foreach (var item in category.ProductCategories)
-            {
-                result.Products.Add(mapper.Map<Product, ProductResource>(item.Product));
-            }
+            //foreach (var item in category.Products)
+            //{
+            //    result.Products.Add(mapper.Map<Product, ProductResource>(item));
+            //}
 
-            //CategoryResource result = mapper.Map<Category, CategoryResource>(category);
+            CategoryProductResource result = mapper.Map<Category, CategoryProductResource>(category);
             return Ok(result);
         }
 

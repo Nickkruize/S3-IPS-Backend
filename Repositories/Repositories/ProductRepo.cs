@@ -28,12 +28,12 @@ namespace Repositories.Repositories
 
         public IEnumerable<Product> FindAllWithProductCategories()
         {
-            return this._context.Products.Include(p => p.ProductCategories).ThenInclude(q => q.Category).ToList();
+            return this._context.Products.Include(p => p.Categories).ToList();
         }
 
         public Product FindByIdWithCategoires(int id)
         {
-            return this._context.Products.Include(p => p.ProductCategories).ThenInclude(q => q.Category).FirstOrDefault(e => e.Id == id);
+            return this._context.Products.Include(p => p.Categories).FirstOrDefault(e => e.Id == id);
         }
     }
 }

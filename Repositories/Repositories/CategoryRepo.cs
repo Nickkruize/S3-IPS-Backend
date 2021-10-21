@@ -20,7 +20,7 @@ namespace Repositories.Repositories
 
         public Category FindByIdWithProducts (int id)
         {
-            return this._context.Categories.Include(p => p.ProductCategories).ThenInclude(q => q.Product).FirstOrDefault(e => e.Id == id);
+            return this._context.Categories.Include(p => p.Products).FirstOrDefault(e => e.Id == id);
         }
     }
 }

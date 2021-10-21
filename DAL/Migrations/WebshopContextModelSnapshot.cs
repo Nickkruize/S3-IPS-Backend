@@ -15,8 +15,23 @@ namespace DAL.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.10")
+                .HasAnnotation("ProductVersion", "5.0.11")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("CategoryProduct", b =>
+                {
+                    b.Property<int>("CategoriesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CategoriesId", "ProductsId");
+
+                    b.HasIndex("ProductsId");
+
+                    b.ToTable("CategoryProduct");
+                });
 
             modelBuilder.Entity("DAL.ContextModels.Category", b =>
                 {
@@ -54,48 +69,19 @@ namespace DAL.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("DAL.ContextModels.ProductCategory", b =>
+            modelBuilder.Entity("CategoryProduct", b =>
                 {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "CategoryId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("ProductCategories");
-                });
-
-            modelBuilder.Entity("DAL.ContextModels.ProductCategory", b =>
-                {
-                    b.HasOne("DAL.ContextModels.Category", "Category")
-                        .WithMany("ProductCategories")
-                        .HasForeignKey("CategoryId")
+                    b.HasOne("DAL.ContextModels.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DAL.ContextModels.Product", "Product")
-                        .WithMany("ProductCategories")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("DAL.ContextModels.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("DAL.ContextModels.Category", b =>
-                {
-                    b.Navigation("ProductCategories");
-                });
-
-            modelBuilder.Entity("DAL.ContextModels.Product", b =>
-                {
-                    b.Navigation("ProductCategories");
                 });
 #pragma warning restore 612, 618
         }

@@ -30,14 +30,10 @@ namespace S3_webshop
                 Price = contextmodel.Price
             };
 
-            foreach (ProductCategory cat in contextmodel.ProductCategories)
-            {
-                result.AddCategoryId(cat.CategoryId);
-            }
 
-            foreach (ProductCategory cat in contextmodel.ProductCategories)
+            foreach (Category cat in contextmodel.Categories)
             {
-                result.AddCategory(cat.Category);
+                result.AddCategory(cat);
             }
 
             return result;

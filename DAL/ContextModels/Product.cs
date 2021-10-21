@@ -11,6 +11,6 @@ namespace DAL.ContextModels
         public string Description { get; set; }
         public double Price { get; set; }
 
-        public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+        public ICollection<Category> Categories { get; set; }
     }
 }

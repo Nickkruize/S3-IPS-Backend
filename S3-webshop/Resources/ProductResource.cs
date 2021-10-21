@@ -11,12 +11,10 @@ namespace S3_webshop.Resources
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
-        public List<int> CategorieIds { get; set; }
         public List<Category> Categories { get; set; }
 
         public ProductResource()
         {
-            CategorieIds = new List<int>();
             Categories = new List<Category>();
         }
 
@@ -26,13 +24,7 @@ namespace S3_webshop.Resources
             Name = name;
             Description = desc;
             Price = price;
-            CategorieIds = new List<int>();
             Categories = new List<Category>();
-        }
-
-        public void AddCategoryId (int categoryId)
-        {
-            CategorieIds.Add(categoryId);
         }
 
         public void AddCategory (Category category)

@@ -16,10 +16,12 @@ namespace S3_webshop.Configuration
             CreateMap<Product, ProductResource>();
             //.ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.ProductCategories.Select(y => y.Category).ToList()));
             CreateMap<Product, ProductWithCategoriesResource>()
-                .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.ProductCategories.Select(y => y.Category).ToList()));
+                .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.Categories));
 
             CreateMap<CategoryResource, Category>();
             CreateMap<Category, CategoryResource>();
+            CreateMap<Category, CategoryProductResource>()
+                .ForMember(dto => dto.Products, opt => opt.MapFrom(x => x.Products));
         }
 
     }
