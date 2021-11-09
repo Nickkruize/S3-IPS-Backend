@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Repositories;
 using Repositories.Interfaces;
 using S3_webshop.Resources;
+using Services.Interfaces;
 
 namespace S3_webshop.Controllers
 {
@@ -19,34 +19,34 @@ namespace S3_webshop.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly IProductRepo productRepo;
+        private readonly IProductService productService;
         private readonly IMapper mapper;
 
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(ILogger<ProductController> logger, IProductRepo productRepo, IMapper mapper)
+        public ProductController(ILogger<ProductController> logger, IProductService productService, IMapper mapper)
         {
             _logger = logger;
-            this.productRepo = productRepo;
+            this.productService = productService;
             this.mapper = mapper;
         }
 
         [HttpGet]
         public IEnumerable<ProductResource> Get()
         {
-            List<Product> products = productRepo.FindAllWithProductCategories().ToList();
+            List<Product> products = productService.GetAllWithCategories().ToList();
             return mapper.Map<List<Product>, List<ProductResource>>(products);
         }
 
         [HttpGet("{id}")]
         public ActionResult<ProductWithCategoriesResource> Get(int id)
         {     
-            if (productRepo.GetById(id) == null)
+            if (productService.GetById(id) == null)
             {
                 return NotFound();
             }
 
-            Product product = productRepo.FindByIdWithCategoires(id);
+            Product product = productService.GetByIdWithCategories(id);
             ProductWithCategoriesResource result = mapper.Map<Product, ProductWithCategoriesResource>(product);
             return Ok(result);
         }
@@ -54,6 +54,11 @@ namespace S3_webshop.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, ProductResource product, int categoryId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             Product product1 = mapper.Map<ProductResource, Product>(product);
 
             if (id != product.Id)
@@ -61,11 +66,11 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            productRepo.Update(product1);
+            productService.Update(product1);
 
             try
             {
-                productRepo.Save();
+                productService.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -83,19 +88,19 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(ProductResource input)
+        public IActionResult Post(NewProductResource input)
         {
-            Product product = new Product
+            if (!ModelState.IsValid)
             {
-                Description = input.Description,
-                Name = input.Name,
-                Price = input.Price
-            };
+                return BadRequest();
+            }
+
+            Product product = mapper.Map<NewProductResource, Product>(input);
 
             try
             {
-                productRepo.AddProduct(product);
-                productRepo.Save();
+                productService.AddProduct(product);
+                productService.Save();
 
                 return CreatedAtAction("Get", new { id = product.Id }, product);
             }
@@ -108,7 +113,7 @@ namespace S3_webshop.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
-            Product product = productRepo.GetById(id);
+            Product product = productService.GetById(id);
 
             if (product == null)
             {
@@ -117,8 +122,8 @@ namespace S3_webshop.Controllers
 
             try
             {
-                productRepo.Delete(product);
-                productRepo.Save();
+                productService.Delete(product);
+                productService.Save();
                 return NoContent();
             }
             catch (Exception ex)
@@ -130,7 +135,7 @@ namespace S3_webshop.Controllers
         [NonAction]
         private bool ProductExists(int id)
         {
-            if (productRepo.GetById(id) != null)
+            if (productService.GetById(id) != null)
             {
                 return true;
             }

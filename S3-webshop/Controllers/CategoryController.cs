@@ -54,6 +54,11 @@ namespace S3_webshop.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] CategoryResource vm)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             Category category = mapper.Map<CategoryResource, Category>(vm);
 
             try
@@ -73,6 +78,11 @@ namespace S3_webshop.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody] CategoryResource vm)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             Category category = mapper.Map<CategoryResource, Category>(vm);
 
             if (id != vm.Id)

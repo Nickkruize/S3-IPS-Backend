@@ -13,6 +13,7 @@ namespace S3_webshop.Configuration
         public MapperProfile()
         {
             CreateMap<ProductResource, Product>();
+            CreateMap<NewProductResource, Product>();
             CreateMap<Product, ProductResource>();
             CreateMap<Product, ProductWithCategoriesResource>()
                 .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.Categories));
@@ -21,6 +22,10 @@ namespace S3_webshop.Configuration
             CreateMap<Category, CategoryResource>();
             CreateMap<Category, CategoryProductResource>()
                 .ForMember(dto => dto.Products, opt => opt.MapFrom(x => x.Products));
+
+            CreateMap<User, UserResource>();
+            CreateMap<NewUserResource, User>();
+            CreateMap<LoginResource, User>();
         }
 
     }

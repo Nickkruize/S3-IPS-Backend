@@ -8,6 +8,8 @@ using DAL;
 using Microsoft.OpenApi.Models;
 using Repositories.Interfaces;
 using Repositories.Repositories;
+using Services.Interfaces;
+using Services;
 
 namespace S3_webshop
 {
@@ -38,7 +40,10 @@ namespace S3_webshop
             services.AddAutoMapper(typeof(Startup));
 
             services.AddTransient<IProductRepo, ProductRepo>();
+            services.AddTransient<IProductService, ProductService>();
             services.AddTransient<ICategoryRepo, CategoryRepo>();
+            services.AddTransient<IUserRepo, UserRepo>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
