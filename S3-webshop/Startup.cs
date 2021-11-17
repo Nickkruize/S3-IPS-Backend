@@ -10,6 +10,7 @@ using Repositories.Interfaces;
 using Repositories.Repositories;
 using Services.Interfaces;
 using Services;
+using S3_webshop.Hubs;
 
 namespace S3_webshop
 {
@@ -25,13 +26,18 @@ namespace S3_webshop
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            services.AddCors(options =>
             {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            }));
+                options.AddPolicy("ClientPermission", policy =>
+                {
+                    policy.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .WithOrigins("http://localhost:3000")
+                    .AllowCredentials();
+                });
+            });
 
+            services.AddSignalR();
             services.AddDbContext<WebshopContext>(optionsbuilder =>
             {
                 optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -68,15 +74,16 @@ namespace S3_webshop
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
+            app.UseCors("ClientPermission");
 
-            app.UseCors("MyPolicy");
+            app.UseRouting();
 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/hubs/chat");
             });
         }
     }
