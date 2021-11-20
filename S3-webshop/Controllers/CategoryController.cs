@@ -14,7 +14,7 @@ using S3_webshop.Resources;
 
 namespace S3_webshop.Controllers
 {
-    [EnableCors("MyPolicy")]
+    [EnableCors("ClientPermission")]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase

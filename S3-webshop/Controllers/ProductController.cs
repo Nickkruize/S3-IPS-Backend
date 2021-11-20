@@ -14,7 +14,7 @@ using Services.Interfaces;
 
 namespace S3_webshop.Controllers
 {
-    [EnableCors("MyPolicy")]
+    [EnableCors("ClientPermission")]
     [ApiController]
     [Route("[controller]")]
     public class ProductController : ControllerBase

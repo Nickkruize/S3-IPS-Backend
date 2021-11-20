@@ -37,6 +37,17 @@ namespace S3_webshop
                 });
             });
 
+            //services.AddCors(options =>
+            //{
+            //    options.AddPolicy("Anything", policy =>
+            //    {
+            //        policy.AllowAnyHeader()
+            //        .AllowAnyMethod()
+            //        .AllowAnyOrigin()
+            //        .AllowCredentials();
+            //    });
+            //});
+
             services.AddSignalR();
             services.AddDbContext<WebshopContext>(optionsbuilder =>
             {
@@ -74,9 +85,9 @@ namespace S3_webshop
 
             app.UseHttpsRedirection();
 
-            app.UseCors("ClientPermission");
-
             app.UseRouting();
+
+            app.UseCors("ClientPermission");
 
             app.UseAuthorization();
 
