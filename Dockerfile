@@ -10,6 +10,6 @@ RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
 # Build runtime image
-COPY bin/Release/net5.0/publish/ App/
+COPY bin\Release\netcoreapp3.1\publish
 WORKDIR /App
 ENTRYPOINT ["dotnet", "S3-webshop.dll"]
