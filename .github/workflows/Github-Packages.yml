@@ -12,6 +12,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  EXPOSE: 44337
 
 jobs:
   build-and-push-image:
@@ -19,7 +20,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      EXPOSE: 44337
 
     steps:
       - name: Checkout repository
