@@ -19,6 +19,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      EXPOSE: 44337
 
     steps:
       - name: Checkout repository
@@ -44,3 +45,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          ports:
+            - 44337:44337

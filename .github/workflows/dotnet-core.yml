@@ -6,15 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-    services:
-  s3webshop:
-    image: s3webshop
-    build:
-      context: .
-      dockerfile: S3-webshop/Dockerfile
-    ports:
-      - 44337:44337
-
 jobs:
   build:
 
