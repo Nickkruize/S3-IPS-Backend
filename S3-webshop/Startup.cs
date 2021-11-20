@@ -66,6 +66,11 @@ namespace S3_webshop
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
+            services.AddHttpsRedirection(options =>
+            {
+                options.HttpsPort = 5001;
+            });
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop", Version = "v1" });
