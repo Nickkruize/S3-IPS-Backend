@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:3.1-focal AS base
 WORKDIR /app
-EXPOSE 5000
+EXPOSE 44337
 
 ENV ASPNETCORE_URLS=http://+:44337
 
