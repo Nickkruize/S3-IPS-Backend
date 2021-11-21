@@ -66,10 +66,10 @@ namespace S3_webshop
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
-            services.AddHttpsRedirection(options =>
-            {
-                options.HttpsPort = 5001;
-            });
+            //services.AddHttpsRedirection(options =>
+            //{
+            //    options.HttpsPort = 5001;
+            //});
 
             services.AddSwaggerGen(c =>
             {
