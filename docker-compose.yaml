@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  webshop:
+    build: .
+    ports:
+      - "5000:80"
+      - "5001:443"
+    environment:
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_HTTPS_PORT=5001
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=pa55w0rd!
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dev_cert.pfx
+    volumes:
+      - ./conf.d/https/:/https/
+
