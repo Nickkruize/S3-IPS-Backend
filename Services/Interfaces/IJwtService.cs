@@ -7,7 +7,7 @@ namespace Services.Interfaces
 {
     public interface IJwtService
     {
-        string Generate(int userId);
+        string Generate();
         public JwtSecurityToken Verifty(string Jwt);
     }
 }

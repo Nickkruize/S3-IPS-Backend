@@ -88,7 +88,8 @@ namespace S3_webshop.Controllers
                 if (userService.Login(user))
                 {
                     UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
-                    var jwt = jwtService.Generate(userResponse.Id);
+                    var jwt = jwtService.Generate();
+                    userResponse.Jwt = jwt;
 
                     //Response.Cookies.Append("jwt", jwt, new CookieOptions
                     //{
@@ -106,29 +107,6 @@ namespace S3_webshop.Controllers
                 return BadRequest("Database Error");
             }
         }
-
-        //[HttpGet("user")]
-        //public IActionResult User()
-        //{
-        //    try
-        //    {
-        //        var jwt = Request.Cookies["jwt"];
-
-        //        var token = jwtService.Verifty(jwt);
-
-        //        int userId = int.Parse(token.Issuer);
-
-        //        User user = userService.GetById(userId);
-
-        //        UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
-
-        //        return Ok(userResponse);
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        return Unauthorized();
-        //    }
-        //}
 
         //[HttpPost("Logout")]
         //public IActionResult Logout()

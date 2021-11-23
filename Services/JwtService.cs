@@ -4,22 +4,30 @@ using System.Collections.Generic;
 using System.Text;
 using Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
 
 namespace Services
 {
     public class JwtService : IJwtService
     {
         private string securityKey = "this is a very secure key";
+        private readonly IConfiguration _config;
 
-        public string Generate(int userId)
+        public JwtService(IConfiguration config)
         {
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
-            var credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
-            var header = new JwtHeader(credentials);
+            this._config = config;
+        }
 
-            var payload = new JwtPayload(userId.ToString(), null, null, null, DateTime.Today.AddDays(1));
-            var securityToken = new JwtSecurityToken(header, payload);
-            return new JwtSecurityTokenHandler().WriteToken(securityToken);
+        public string Generate()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+              _config["Jwt:Issuer"],
+              null,
+              expires: DateTime.Now.AddMinutes(120),
+              signingCredentials: credentials);
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         public JwtSecurityToken Verifty(string Jwt)

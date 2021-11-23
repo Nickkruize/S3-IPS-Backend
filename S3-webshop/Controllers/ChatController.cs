@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using S3_webshop.Resources;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
 
 namespace S3_webshop.Controllers
 {
@@ -20,7 +21,9 @@ namespace S3_webshop.Controllers
             _chatHub = chatHub;
         }
 
+
         [HttpPost("messages")]
+        [Authorize]
         public async Task Post(ChatMessage message)
         {
             // run some logic...

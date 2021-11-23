@@ -12,6 +12,9 @@ using Services.Interfaces;
 using Services;
 using S3_webshop.Hubs;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace S3_webshop
 {
@@ -40,16 +43,20 @@ namespace S3_webshop
                 });
             });
 
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy("Anything", policy =>
-            //    {
-            //        policy.AllowAnyHeader()
-            //        .AllowAnyMethod()
-            //        .AllowAnyOrigin()
-            //        .AllowCredentials();
-            //    });
-            //});
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Issuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                    };
+                });
 
             services.AddSignalR();
 
@@ -85,10 +92,9 @@ namespace S3_webshop
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-
-            if (env.IsDevelopment())
+            if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
@@ -101,6 +107,7 @@ namespace S3_webshop
 
             app.UseCors("ClientPermission");
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
