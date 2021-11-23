@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using S3_webshop.Resources;
+using Services;
 using Services.Interfaces;
 
 namespace S3_webshop.Controllers
@@ -17,11 +19,13 @@ namespace S3_webshop.Controllers
     {
         private readonly IUserService userService;
         private readonly IMapper mapper;
+        private readonly IJwtService jwtService;
 
-        public UserController(IMapper mapper, IUserService userService)
+        public UserController(IMapper mapper, IUserService userService, IJwtService jwtService)
         {
             this.mapper = mapper;
             this.userService = userService;
+            this.jwtService = jwtService;
         }
 
         [HttpGet]
@@ -68,7 +72,8 @@ namespace S3_webshop.Controllers
             }
         }
 
-        [HttpPost("/Login")]
+        [HttpPost]
+        [Route("[action]")]
         public IActionResult Login(LoginResource input)
         {
             if (!ModelState.IsValid)
@@ -82,7 +87,15 @@ namespace S3_webshop.Controllers
             {
                 if (userService.Login(user))
                 {
-                    return Ok();
+                    UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
+                    var jwt = jwtService.Generate(userResponse.Id);
+
+                    //Response.Cookies.Append("jwt", jwt, new CookieOptions
+                    //{
+                    //    HttpOnly = true
+                    //});
+
+                    return Ok(userResponse);
                 }
 
                 return BadRequest("Incorrect information");
@@ -93,5 +106,36 @@ namespace S3_webshop.Controllers
                 return BadRequest("Database Error");
             }
         }
+
+        //[HttpGet("user")]
+        //public IActionResult User()
+        //{
+        //    try
+        //    {
+        //        var jwt = Request.Cookies["jwt"];
+
+        //        var token = jwtService.Verifty(jwt);
+
+        //        int userId = int.Parse(token.Issuer);
+
+        //        User user = userService.GetById(userId);
+
+        //        UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
+
+        //        return Ok(userResponse);
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        return Unauthorized();
+        //    }
+        //}
+
+        //[HttpPost("Logout")]
+        //public IActionResult Logout()
+        //{
+        //    Response.Cookies.Delete("jwt");
+
+        //    return Ok("Logout succes");
+        //}
     }
 }

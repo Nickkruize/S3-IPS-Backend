@@ -66,7 +66,7 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            productService.Update(product1);
+            productService.Update(product1, categoryId);
 
             try
             {

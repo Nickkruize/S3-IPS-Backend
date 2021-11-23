@@ -9,50 +9,58 @@ namespace Services
 {
     public class ProductService :  IProductService
     {
-        private readonly IProductRepo _productRepo;
+        private readonly IProductRepo productRepo;
+        private readonly ICategoryRepo categoryRepo;
 
-        public ProductService(IProductRepo productRepo)
+        public ProductService(IProductRepo productRepo, ICategoryRepo categoryRepo)
         {
-            _productRepo = productRepo;
+            this.productRepo = productRepo;
+            this.categoryRepo = categoryRepo;
         }
 
         public IEnumerable<Product> GetAll()
         {
-            return _productRepo.FindAll();
+            return productRepo.FindAll();
         }
 
         public IEnumerable<Product> GetAllWithCategories()
         {
-            return _productRepo.FindAllWithProductCategories();
+            return productRepo.FindAllWithProductCategories();
         }
 
         public Product GetById(int id)
         {
-            return _productRepo.GetById(id);
+            return productRepo.GetById(id);
         }
 
         public Product GetByIdWithCategories(int id)
         {
-            return _productRepo.FindByIdWithCategoires(id);
+            return productRepo.FindByIdWithCategoires(id);
         }
 
-        public void Update(Product product)
+        public void Update(Product product, int categoryId)
         {
-            _productRepo.Update(product);
+            Category category = categoryRepo.GetById(categoryId);
+            List<Category> categories = new List<Category>
+            {
+                category
+            };
+            product.Categories = categories;
+            productRepo.Update(product);
         }
 
         public void Save()
         {
-            _productRepo.Save();
+            productRepo.Save();
         }
         public void Delete(Product product)
         {
-            _productRepo.Delete(product);
+            productRepo.Delete(product);
         }
 
         public int AddProduct(Product product)
         {
-            return _productRepo.AddProduct(product);
+            return productRepo.AddProduct(product);
         }
     }
 }

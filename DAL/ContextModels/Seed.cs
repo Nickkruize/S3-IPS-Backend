@@ -27,7 +27,7 @@ namespace DAL.ContextModels
                      {
                          Name = "World of Warcraft",
                          Description = "MMORPG By Blizzard Entertaimment",
-                         Price = 34.99,
+                         Price = 34.99
                      },
 
                      new Product
@@ -44,38 +44,6 @@ namespace DAL.ContextModels
                          Price = 24.99
                      }
                 ) ;
-                context.SaveChanges();
-            }
-        }
-
-        public static void InitializeCategories(IApplicationBuilder app)
-        {
-            var scopee = app.ApplicationServices.CreateScope();
-            using (var context = new WebshopContext(
-                scopee.ServiceProvider.GetRequiredService<DbContextOptions<WebshopContext>>()))
-            {
-                // Look for any movies.
-                if (context.Categories.Any())
-                {
-                    return;   // DB has been seeded
-                }
-
-                context.Categories.AddRange(
-                     new Category
-                     {
-                         Name = "Game"
-                     },
-
-                     new Category
-                     {
-                         Name = "Book"
-                     },
-
-                     new Category
-                     {
-                         Name = "Movie"
-                     }
-                );
                 context.SaveChanges();
             }
         }
@@ -97,11 +65,54 @@ namespace DAL.ContextModels
                 Name = "Movie"
             };
 
-            List<Category> categories = new List<Category>();
-            categories.Add(category1);
-            categories.Add(category2);
-            categories.Add(category3);
+            List<Category> categories = new List<Category>
+            {
+                category1,
+                category2,
+                category3
+            };
             return categories;
+        }
+
+        public static void InitializeCategories(IApplicationBuilder app)
+        {
+            var scopee = app.ApplicationServices.CreateScope();
+            using (var context = new WebshopContext(
+                scopee.ServiceProvider.GetRequiredService<DbContextOptions<WebshopContext>>()))
+            {
+                // Look for any movies.
+                if (context.Categories.Any())
+                {
+                    return;   // DB has been seeded
+                }
+
+                List<Category> categories = GetCategories();
+                context.Categories.AddRange(categories);
+                context.SaveChanges();
+            }
+        }
+
+        public static void AssignCategories(IApplicationBuilder app)
+        {
+            var scopee = app.ApplicationServices.CreateScope();
+            using (var context = new WebshopContext(
+                scopee.ServiceProvider.GetRequiredService<DbContextOptions<WebshopContext>>()))
+            {
+                if (!context.Categories.Any() && !context.Products.Any())
+                {
+                    List<Category> categories = context.Categories.ToList();
+                    List<Product> products = context.Products.ToList();
+
+                    for (int i = 0; i < categories.Count; i++)
+                    {
+                        products[i].Categories = new List<Category>
+                        {
+                        categories[i]
+                        };
+                    }
+                    context.Products.UpdateRange(products);
+                }
+            }
         }
     }
 }

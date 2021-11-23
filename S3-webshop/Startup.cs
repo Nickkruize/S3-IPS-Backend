@@ -72,6 +72,7 @@ namespace S3_webshop
             services.AddTransient<ICategoryRepo, CategoryRepo>();
             services.AddTransient<IUserRepo, UserRepo>();
             services.AddTransient<IUserService, UserService>();
+            services.AddScoped<IJwtService, JwtService>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
@@ -111,6 +112,7 @@ namespace S3_webshop
 
             Seed.InitializeCategories(app);
             Seed.InitializeProducts(app);
+            Seed.AssignCategories(app);
         }
     }
 }

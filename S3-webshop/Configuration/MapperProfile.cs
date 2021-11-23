@@ -24,6 +24,7 @@ namespace S3_webshop.Configuration
                 .ForMember(dto => dto.Products, opt => opt.MapFrom(x => x.Products));
 
             CreateMap<User, UserResource>();
+            CreateMap<UserResource, User>();
             CreateMap<NewUserResource, User>();
             CreateMap<LoginResource, User>();
         }

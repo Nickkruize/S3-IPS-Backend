@@ -59,6 +59,11 @@ namespace Services
             return userRepo.GetById(id);
         }
 
+        public User GetByEmail(string email)
+        {
+            return userRepo.FindByEmail(email);
+        }
+
         public void Save()
         {
             userRepo.Save();

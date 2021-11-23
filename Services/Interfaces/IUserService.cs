@@ -11,6 +11,7 @@ namespace Services.Interfaces
         bool Login(User user);
         IEnumerable<User> GetAll();
         User GetById(int id);
+        User GetByEmail(string email);
         void Save();
     }
 }
