@@ -15,6 +15,9 @@ using DAL.ContextModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Linq;
+using System.Collections.Generic;
+using DAL.Helpers;
 
 namespace S3_webshop
 {
@@ -94,6 +97,8 @@ namespace S3_webshop
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app)
         {
+            UpdateDatabase(app, Environment);
+
             if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -115,11 +120,29 @@ namespace S3_webshop
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/hubs/chat");
             });
+        }
 
+        private async static void UpdateDatabase(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            WebshopContext context = serviceScope.ServiceProvider.GetService<WebshopContext>();
+            context.Database.Migrate();
 
-            Seed.InitializeCategories(app);
-            Seed.InitializeProducts(app);
-            Seed.AssignCategories(app);
+            if (env.IsDevelopment())
+            {
+                if (true)
+                {
+                    await context.Categories.AddRangeAsync(Seed.SeedCategories());
+                    await context.SaveChangesAsync();
+                }
+
+                if (!context.Products.Any())
+                {
+                    List<Category> categories = context.Categories.ToList();
+                    await context.Products.AddRangeAsync(Seed.SeedProducts(categories));
+                    await context.SaveChangesAsync();
+                }
+            }
         }
     }
 }
