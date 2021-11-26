@@ -7,7 +7,7 @@ namespace Services.Interfaces
 {
     public interface IUserService
     {
-        User RegisterUser(string email, string password);
+        User RegisterUser(string email, string password, string username);
         bool Login(User user);
         IEnumerable<User> GetAll();
         User GetById(int id);

@@ -31,6 +31,11 @@ namespace S3_webshop.Controllers
             if (user != null)
             {
                 var tokenString = jwtService.Generate();
+                Response.Cookies.Append("Jwt", tokenString, new CookieOptions
+                {
+                    HttpOnly = true
+                });
+                
                 response = Ok(new { token = tokenString });
             }
             return response;

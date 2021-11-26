@@ -16,13 +16,14 @@ namespace Services
             this.userRepo = userRepo;
         }
 
-        public User RegisterUser(string email, string password)
+        public User RegisterUser(string email, string password, string username)
         {
             PasswordHasher passwordHasher = new PasswordHasher();
             User user = new User
             {
                 Email = email,
-                Password = passwordHasher.hashedPassword(password)
+                Password = passwordHasher.hashedPassword(password),
+                Username = username
             };
 
             return userRepo.Create(user);

@@ -61,7 +61,7 @@ namespace S3_webshop.Controllers
 
             try
             {
-                userService.RegisterUser(user.Email, user.Password);
+                userService.RegisterUser(user.Email, user.Password, user.Username);
                 userService.Save();
 
                 return CreatedAtAction("Get", new { id = user.Id }, user);
@@ -99,7 +99,7 @@ namespace S3_webshop.Controllers
                     return Ok(userResponse);
                 }
 
-                return BadRequest("Incorrect information");
+                return BadRequest("Incorrect email or password");
                 
             }
             catch
