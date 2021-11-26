@@ -17,7 +17,8 @@ namespace DAL.Helpers
             Faker<Product> productToFake = new Faker<Product>()
                 .RuleFor(p => p.Name, f => f.Commerce.ProductName())
                 .RuleFor(p => p.Price, f => double.Parse(f.Commerce.Price(1, 1000, 2)))
-                .RuleFor(p => p.Description, f => f.Lorem.Lines(10));
+                .RuleFor(p => p.Description, f => f.Lorem.Lines(10))
+                .RuleFor(p => p.ImgUrl, f => f.Image.PicsumUrl(480, 480));
 
             List<Product> products = productToFake.Generate(25);
 
@@ -34,11 +35,11 @@ namespace DAL.Helpers
             Faker<Category> categoryToFake = new Faker<Category>()
                 .RuleFor(c => c.Name, f => f.Commerce.Categories(1)[0].ToString());
 
-            List<Category> categories = categoryToFake.Generate(15);
+            List<Category> categories = categoryToFake.Generate(10);
             List<Category> result = new List<Category>();
             foreach (Category category in categories)
             {
-                if (categories.Count(c => c.Name == category.Name) == 1)
+                if (categories.Count(c => c.Name == category.Name) == 1 || result.Count(e => e.Name == category.Name) == 0)
                 {
                     result.Add(category);
                 }

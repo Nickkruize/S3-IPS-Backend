@@ -130,7 +130,7 @@ namespace S3_webshop
 
             if (env.IsDevelopment())
             {
-                if (true)
+                if (!context.Categories.Any())
                 {
                     await context.Categories.AddRangeAsync(Seed.SeedCategories());
                     await context.SaveChangesAsync();
