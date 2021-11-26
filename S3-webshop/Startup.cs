@@ -142,6 +142,22 @@ namespace S3_webshop
                     await context.Products.AddRangeAsync(Seed.SeedProducts(categories));
                     await context.SaveChangesAsync();
                 }
+
+                if (!context.Users.Any())
+                {
+                    await context.Users.AddAsync(Seed.SeedUser());
+                    await context.SaveChangesAsync();
+                }
+
+                if (!context.OrderItems.Any())
+                {
+                    List<Product> products = context.Products.ToList();
+                    User user = context.Users.Find(1);
+                    List<Order> orders = Seed.SeedOrders(user);
+                    await context.Orders.AddRangeAsync(orders);
+                    await context.OrderItems.AddRangeAsync(Seed.SeedOrderItems(products,orders));
+                    await context.SaveChangesAsync();
+                }
             }
         }
     }
