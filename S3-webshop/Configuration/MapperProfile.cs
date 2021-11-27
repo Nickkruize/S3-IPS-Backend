@@ -19,6 +19,7 @@ namespace S3_webshop.Configuration
                 .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.Categories));
 
             CreateMap<CategoryResource, Category>();
+            CreateMap<NewCategoryResource, Category>();
             CreateMap<Category, CategoryResource>();
             CreateMap<Category, CategoryProductResource>()
                 .ForMember(dto => dto.Products, opt => opt.MapFrom(x => x.Products));

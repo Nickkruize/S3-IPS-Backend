@@ -1,12 +1,8 @@
 ﻿using Bogus;
 using DAL.ContextModels;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace DAL.Helpers
 {
@@ -77,39 +73,54 @@ namespace DAL.Helpers
             Faker<OrderItem> orderItemToFake = new Faker<OrderItem>()
                 .RuleFor(o => o.CreatedAt, f => f.Date.Future(1))
                 .RuleFor(o => o.Quantity, f => f.Random.Number(1, 10));
+            Random random = new Random();
 
             for (int i = 0; i < 30; i++)
             {
                 OrderItem orderItem = orderItemToFake.Generate();
                 orderItem.Product = GetRandomProduct(products);
-                orderItem.Order = orders[0];
+                int index = random.Next(0, orders.Count);
+                orderItem.Order = orders[index];
                 orderItems.Add(orderItem);
             }
 
             return orderItems;
         }
 
-        public static List<Order> SeedOrders(User user)
+        public static List<Order> SeedOrders(List<User> users)
         {
             List<Order> orders = new List<Order>();
-            Order order = new Order
+            Random random = new Random();
+            for (int i = 0; i < 10; i++)
             {
-                CreatedAt = DateTime.Now,
-                User = user,
-            };
+                int index = random.Next(0, users.Count);
+                Order order = new Order
+                {
+                    CreatedAt = DateTime.Now,
+                    User = users[index],
+                };
+                orders.Add(order);
+            }
 
-            orders.Add(order);
             return orders;
         }
 
-        public static User SeedUser()
+        public static List<User> SeedUser()
         {
-            return new User()
+            List<User> users = new List<User>();
+
+            Faker<User> userToFake = new Faker<User>()
+                .RuleFor(u => u.Email, f => f.Internet.ExampleEmail())
+                .RuleFor(u => u.Username, f => f.Internet.UserName())
+                .RuleFor(u => u.Password, f => BCrypt.Net.BCrypt.HashPassword(f.Internet.Password(10)));
+
+            for (int i = 0; i < 10; i++)
             {
-                Email = "nick@example.com",
-                Password = "Test",
-                Username = "Azzania"
-            };
+                User user = userToFake.Generate();
+                users.Add(user);
+            }
+
+            return users;
         }
     }
 }

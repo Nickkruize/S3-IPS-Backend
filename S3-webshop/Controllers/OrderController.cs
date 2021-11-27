@@ -12,11 +12,11 @@ namespace S3_webshop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ControllerBase
+    public class OrderController : ControllerBase
     {
         private readonly WebshopContext _context;
 
-        public OrdersController(WebshopContext context)
+        public OrderController(WebshopContext context)
         {
             _context = context;
         }
@@ -36,7 +36,11 @@ namespace S3_webshop.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Include(e => e.OrderItems)
+                .ThenInclude(o => o.Product)
+                .Include(e => e.User)
+                .FirstAsync(e => e.Id == id);
 
             if (order == null)
             {

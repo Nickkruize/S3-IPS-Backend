@@ -3,7 +3,6 @@ using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Services
 {
@@ -18,11 +17,10 @@ namespace Services
 
         public User RegisterUser(string email, string password, string username)
         {
-            PasswordHasher passwordHasher = new PasswordHasher();
             User user = new User
             {
                 Email = email,
-                Password = passwordHasher.hashedPassword(password),
+                Password = BCrypt.Net.BCrypt.HashPassword(password),
                 Username = username
             };
 
@@ -31,7 +29,6 @@ namespace Services
 
         public bool Login(User user)
         {
-            PasswordHasher passwordHasher = new PasswordHasher();
             try
             {
                 User StoredInfo = userRepo.FindByEmail(user.Email);
@@ -41,7 +38,7 @@ namespace Services
                 }
                 else
                 {
-                    return passwordHasher.verifyPassword(user.Password, StoredInfo.Password);
+                    return BCrypt.Net.BCrypt.Verify(user.Password, StoredInfo.Password);
                 }
             }
             catch (Exception)

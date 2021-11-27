@@ -52,14 +52,14 @@ namespace S3_webshop.Controllers
 
         // POST api/<CategoryController>
         [HttpPost]
-        public IActionResult Post([FromBody] CategoryResource vm)
+        public IActionResult Post([FromBody] NewCategoryResource vm)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            Category category = mapper.Map<CategoryResource, Category>(vm);
+            Category category = mapper.Map<NewCategoryResource, Category>(vm);
 
             try
             {

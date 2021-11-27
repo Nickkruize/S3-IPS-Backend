@@ -77,11 +77,14 @@ namespace S3_webshop
             }
             services.AddAutoMapper(typeof(Startup));
 
-            services.AddTransient<IProductRepo, ProductRepo>();
-            services.AddTransient<IProductService, ProductService>();
-            services.AddTransient<ICategoryRepo, CategoryRepo>();
-            services.AddTransient<IUserRepo, UserRepo>();
-            services.AddTransient<IUserService, UserService>();
+            services.AddScoped<IProductRepo, ProductRepo>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ICategoryRepo, CategoryRepo>();
+            services.AddScoped<IUserRepo, UserRepo>();
+            services.AddScoped<IOrderRepo, OrderRepo>();
+            services.AddScoped<IOrderItemRepo, OrderItemRepo>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtService, JwtService>();
 
             services.AddControllers().AddNewtonsoftJson(options =>
@@ -145,15 +148,15 @@ namespace S3_webshop
 
                 if (!context.Users.Any())
                 {
-                    await context.Users.AddAsync(Seed.SeedUser());
+                    await context.Users.AddRangeAsync(Seed.SeedUser());
                     await context.SaveChangesAsync();
                 }
 
                 if (!context.OrderItems.Any())
                 {
                     List<Product> products = context.Products.ToList();
-                    User user = context.Users.Find(1);
-                    List<Order> orders = Seed.SeedOrders(user);
+                    List<User> users = context.Users.ToList();
+                    List<Order> orders = Seed.SeedOrders(users);
                     await context.Orders.AddRangeAsync(orders);
                     await context.OrderItems.AddRangeAsync(Seed.SeedOrderItems(products,orders));
                     await context.SaveChangesAsync();
