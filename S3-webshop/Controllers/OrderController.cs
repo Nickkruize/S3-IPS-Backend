@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace S3_webshop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderController : ControllerBase
     {
         private readonly WebshopContext _context;
@@ -23,6 +26,7 @@ namespace S3_webshop.Controllers
 
         // GET: api/Orders
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
             return await _context.Orders
@@ -34,6 +38,7 @@ namespace S3_webshop.Controllers
 
         // GET: api/Orders/5
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
             var order = await _context.Orders
