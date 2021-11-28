@@ -124,8 +124,14 @@ namespace DAL.Helpers
 
             users.Add(new User()
             {
-                Username = "Tester",
+                Username = "Admin",
                 Email = "Test@example.com",
+                Password = "Test2021!"
+            });
+            users.Add(new User()
+            {
+                Username = "User",
+                Email = "User@example.com",
                 Password = "Test2021!"
             });
 

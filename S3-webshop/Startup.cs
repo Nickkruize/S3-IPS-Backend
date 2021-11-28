@@ -189,7 +189,7 @@ namespace S3_webshop
                         };
 
                         await userManager.CreateAsync(identityUser, user.Password);
-                        if (user.Username == "Tester")
+                        if (user.Username == "Admin")
                         {
                             await userManager.AddToRoleAsync(identityUser, "Admin");
                         }
