@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.SignalR;
 using S3_webshop.Resources;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace S3_webshop.Controllers
 {
     [EnableCors("ClientPermission")]
     [ApiController]
     [Route("[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ChatController : ControllerBase
     {
         private readonly IHubContext<ChatHub, IChatClient> _chatHub;
@@ -23,7 +25,6 @@ namespace S3_webshop.Controllers
 
 
         [HttpPost("messages")]
-        [Authorize]
         public async Task Post(ChatMessage message)
         {
             // run some logic...

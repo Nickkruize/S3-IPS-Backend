@@ -59,10 +59,22 @@ namespace S3_webshop.Controllers
                 IdentityResult isCreated = await _userManager.CreateAsync(newUser, user.Password);
                 if (isCreated.Succeeded)
                 {
-                    return Ok(new RegistrationResponseDto()
+                    IdentityResult roleAdded = await _userManager.AddToRoleAsync(newUser, "User");
+                    if (roleAdded.Succeeded)
                     {
-                        Succes = true
-                    });
+                        return Ok(new RegistrationResponseDto()
+                        {
+                            Succes = true
+                        });
+                    }
+                    else
+                    {
+                        return BadRequest(new RegistrationResponseDto()
+                        {
+                            Errors = roleAdded.Errors.Select(x => x.Description).ToList(),
+                            Succes = false
+                        });
+                    }
                 }
                 else
                 {
@@ -91,13 +103,6 @@ namespace S3_webshop.Controllers
             if (ModelState.IsValid)
             {
                 IdentityUser existingUser = await _userManager.FindByEmailAsync(user.Email);
-                IList<string> roleNames = await _userManager.GetRolesAsync(existingUser);
-                List<IdentityRole> Roles = new List<IdentityRole>();
-                foreach (string rolename in roleNames)
-                {
-                    IdentityRole Role = await _roleManager.FindByNameAsync(rolename);
-                    Roles.Add(Role);
-                }
 
                 if (existingUser == null)
                 {
@@ -125,6 +130,13 @@ namespace S3_webshop.Controllers
                     });
                 }
 
+                IList<string> roleNames = await _userManager.GetRolesAsync(existingUser);
+                List<IdentityRole> Roles = new List<IdentityRole>();
+                foreach (string rolename in roleNames)
+                {
+                    IdentityRole Role = await _roleManager.FindByNameAsync(rolename);
+                    Roles.Add(Role);
+                }
                 string jwtToken = _jwtService.GenerateJwtToken(existingUser, Roles);
 
                 return Ok(new LoginResponse()
