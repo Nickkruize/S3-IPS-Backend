@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,8 @@ namespace DAL.Helpers
         public static List<Category> SeedCategories()
         {
             Faker<Category> categoryToFake = new Faker<Category>()
-                .RuleFor(c => c.Name, f => f.Commerce.Categories(1)[0].ToString());
+                .RuleFor(c => c.Name, f => f.Commerce.Categories(1)[0].ToString())
+                .RuleFor(c => c.ImgUrl, f => f.Image.PicsumUrl(480, 480));
 
             List<Category> categories = categoryToFake.Generate(10);
             List<Category> result = new List<Category>();
@@ -87,7 +89,7 @@ namespace DAL.Helpers
             return orderItems;
         }
 
-        public static List<Order> SeedOrders(List<User> users)
+        public static List<Order> SeedOrders(List<IdentityUser> users)
         {
             List<Order> orders = new List<Order>();
             Random random = new Random();
@@ -111,16 +113,40 @@ namespace DAL.Helpers
 
             Faker<User> userToFake = new Faker<User>()
                 .RuleFor(u => u.Email, f => f.Internet.ExampleEmail())
-                .RuleFor(u => u.Username, f => f.Internet.UserName())
-                .RuleFor(u => u.Password, f => BCrypt.Net.BCrypt.HashPassword(f.Internet.Password(10)));
+                .RuleFor(u => u.Username, f => f.Internet.UserName());
 
             for (int i = 0; i < 10; i++)
             {
                 User user = userToFake.Generate();
+                user.Password = "Isildur2016!";
                 users.Add(user);
             }
 
+            users.Add(new User()
+            {
+                Username = "Tester",
+                Email = "Test@example.com",
+                Password = "Test2021!"
+            });
+
             return users;
+        }
+
+        public static List<IdentityRole> SeedRoles()
+        {
+            List<IdentityRole> roles = new List<IdentityRole>()
+            {
+                new IdentityRole()
+                {
+                    Name = "Admin"
+                },
+                new IdentityRole()
+                {
+                    Name = "User"
+                }
+            };
+
+            return roles;
         }
     }
 }

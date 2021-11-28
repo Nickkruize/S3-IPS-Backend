@@ -1,10 +1,11 @@
 ﻿using DAL.ContextModels;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace DAL
 {
-    public class WebshopContext: DbContext
+    public class WebshopContext: IdentityDbContext
     {
         public WebshopContext(DbContextOptions<WebshopContext> options): base(options)
         {
@@ -13,7 +14,7 @@ namespace DAL
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<User> Users { get; set; }
+        //public DbSet<User> Users { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 
@@ -30,6 +31,8 @@ namespace DAL
             modelBuilder.Entity<Category>()
                 .HasIndex(c => c.Name)
                 .IsUnique();
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

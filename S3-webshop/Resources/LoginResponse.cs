@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace S3_webshop.Resources
 {
-    public class CategoryResource
+    public class LoginResponse : AuthResult
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string ImgUrl { get; set; }
+        public string Token { get; set; }
     }
 }

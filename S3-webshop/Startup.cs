@@ -18,6 +18,7 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 using DAL.Helpers;
+using Microsoft.AspNetCore.Identity;
 
 namespace S3_webshop
 {
@@ -41,27 +42,44 @@ namespace S3_webshop
                 {
                     policy.AllowAnyHeader()
                     .AllowAnyMethod()
-                    .WithOrigins("http://localhost:3000")
+                    .WithOrigins("http://localhost:3000", "http://192.168.178.115:3000")
                     .AllowCredentials();
                 });
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(jwt =>
                 {
-                    options.TokenValidationParameters = new TokenValidationParameters
+                    var key = Encoding.ASCII.GetBytes(Configuration["Jwt:Secret"]);
+
+                    jwt.SaveToken = true;
+                    jwt.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = Configuration["Jwt:Issuer"],
-                        ValidAudience = Configuration["Jwt:Issuer"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        RequireExpirationTime = false
                     };
                 });
 
+            services.AddIdentityCore<IdentityUser>(options =>
+            options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<WebshopContext>();
+
             services.AddSignalR();
+
+            //services.AddAuthorization(options =>
+            //{
+            //    options.AddPolicy("MustHaveId", policy => policy.RequireClaim("Id", "5fb37a20-76ab-402e-bb68-aaf32bdc2eaa"));
+            //});
 
             if (Environment.IsDevelopment())
             {
@@ -146,19 +164,43 @@ namespace S3_webshop
                     await context.SaveChangesAsync();
                 }
 
+                if (!context.Roles.Any())
+                {
+                    using var Scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                    RoleManager<IdentityRole> roleManager = Scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+                    foreach (IdentityRole role in Seed.SeedRoles())
+                    {
+                        await roleManager.CreateAsync(role);
+                    }
+                }
+
                 if (!context.Users.Any())
                 {
-                    await context.Users.AddRangeAsync(Seed.SeedUser());
-                    await context.SaveChangesAsync();
+                    using var Scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                    UserManager<IdentityUser> userManager = Scope.ServiceProvider.GetService<UserManager<IdentityUser>>();
+                    RoleManager<IdentityRole> roleManager = Scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+                    List<User> Users = Seed.SeedUser();
+                    foreach (User user in Users)
+                    {
+                        IdentityUser identityUser = new IdentityUser()
+                        {
+                            Email = user.Email,
+                            UserName = user.Username
+                        };
+
+                        await userManager.CreateAsync(identityUser, user.Password);
+                        await userManager.AddToRoleAsync(identityUser, "User");
+
+                    }
                 }
 
                 if (!context.OrderItems.Any())
                 {
                     List<Product> products = context.Products.ToList();
-                    List<User> users = context.Users.ToList();
+                    List<IdentityUser> users = context.Users.ToList();
                     List<Order> orders = Seed.SeedOrders(users);
                     await context.Orders.AddRangeAsync(orders);
-                    await context.OrderItems.AddRangeAsync(Seed.SeedOrderItems(products,orders));
+                    await context.OrderItems.AddRangeAsync(Seed.SeedOrderItems(products, orders));
                     await context.SaveChangesAsync();
                 }
             }

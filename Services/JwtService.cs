@@ -5,6 +5,8 @@ using System.Text;
 using Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Services
 {
@@ -18,33 +20,34 @@ namespace Services
             this._config = config;
         }
 
-        public string Generate()
+        public string GenerateJwtToken(IdentityUser user, List<IdentityRole> roles)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-              _config["Jwt:Issuer"],
-              null,
-              expires: DateTime.Now.AddMinutes(120),
-              signingCredentials: credentials);
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+            JwtSecurityTokenHandler jwtTokenHandler = new JwtSecurityTokenHandler();
 
-        public JwtSecurityToken Verifty(string Jwt)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(securityKey);
-            tokenHandler.ValidateToken(Jwt, new TokenValidationParameters
+            byte[] key = Encoding.ASCII.GetBytes(_config["Jwt:Secret"]);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = false,
-                ValidateAudience = false
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("Id", user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
+            foreach (IdentityRole role in roles)
+            {
+                tokenDescriptor.Subject.AddClaim(new Claim(ClaimTypes.Role, role.Name));
             }
-            , out SecurityToken validatedToken);
 
-            return (JwtSecurityToken)validatedToken;
+            SecurityToken token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            string jwtToken = jwtTokenHandler.WriteToken(token);
+            return jwtToken;
         }
     }
 }

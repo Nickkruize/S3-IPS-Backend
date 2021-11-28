@@ -72,41 +72,41 @@ namespace S3_webshop.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("[action]")]
-        public IActionResult Login(LoginResource input)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
+        //[HttpPost]
+        //[Route("[action]")]
+        //public IActionResult Login(LoginResource input)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            User user = mapper.Map<LoginResource, User>(input);
+        //    User user = mapper.Map<LoginResource, User>(input);
 
-            try
-            {
-                if (userService.Login(user))
-                {
-                    UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
-                    var jwt = jwtService.Generate();
-                    userResponse.Jwt = jwt;
+        //    try
+        //    {
+        //        if (userService.Login(user))
+        //        {
+        //            UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
+        //            var jwt = jwtService.Generate();
+        //            userResponse.Jwt = jwt;
 
-                    //Response.Cookies.Append("jwt", jwt, new CookieOptions
-                    //{
-                    //    HttpOnly = true
-                    //});
+        //            //Response.Cookies.Append("jwt", jwt, new CookieOptions
+        //            //{
+        //            //    HttpOnly = true
+        //            //});
 
-                    return Ok(userResponse);
-                }
+        //            return Ok(userResponse);
+        //        }
 
-                return BadRequest("Incorrect email or password");
+        //        return BadRequest("Incorrect email or password");
                 
-            }
-            catch
-            {
-                return BadRequest("Database Error");
-            }
-        }
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest("Database Error");
+        //    }
+        //}
 
         //[HttpPost("Logout")]
         //public IActionResult Logout()

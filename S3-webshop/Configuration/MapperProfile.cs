@@ -27,7 +27,6 @@ namespace S3_webshop.Configuration
             CreateMap<User, UserResource>();
             CreateMap<UserResource, User>();
             CreateMap<NewUserResource, User>();
-            CreateMap<LoginResource, User>();
         }
 
     }

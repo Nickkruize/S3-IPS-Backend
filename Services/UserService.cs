@@ -27,25 +27,25 @@ namespace Services
             return userRepo.Create(user);
         }
 
-        public bool Login(User user)
-        {
-            try
-            {
-                User StoredInfo = userRepo.FindByEmail(user.Email);
-                if (StoredInfo == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return BCrypt.Net.BCrypt.Verify(user.Password, StoredInfo.Password);
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        //public bool Login(User user)
+        //{
+        //    try
+        //    {
+        //        User StoredInfo = userRepo.FindByEmail(user.Email);
+        //        if (StoredInfo == null)
+        //        {
+        //            return false;
+        //        }
+        //        else
+        //        {
+        //            return BCrypt.Net.BCrypt.Verify(user.Password, StoredInfo.Password);
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
 
         public IEnumerable<User> GetAll()
         {
@@ -57,10 +57,10 @@ namespace Services
             return userRepo.GetById(id);
         }
 
-        public User GetByEmail(string email)
-        {
-            return userRepo.FindByEmail(email);
-        }
+        //public User GetByEmail(string email)
+        //{
+        //    return userRepo.FindByEmail(email);
+        //}
 
         public void Save()
         {
