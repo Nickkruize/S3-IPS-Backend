@@ -1,9 +1,11 @@
 ﻿using DAL;
 using DAL.ContextModels;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Repositories.Repositories
 {
@@ -14,6 +16,16 @@ namespace Repositories.Repositories
         public OrderRepo(WebshopContext db) : base(db)
         {
             _context = db;
+        }
+
+        public async Task<List<Order>> GetAllOrdersWithRelatedData()
+        {
+            return await _context.Orders
+                .IgnoreQueryFilters()
+                .Include(e => e.OrderItems)
+                .ThenInclude(o => o.Product)
+                .Include(e => e.User)
+                .ToListAsync();
         }
     }
 }

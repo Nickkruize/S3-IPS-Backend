@@ -9,6 +9,7 @@ using DAL;
 using DAL.ContextModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Repositories.Interfaces;
 
 namespace S3_webshop.Controllers
 {
@@ -17,23 +18,30 @@ namespace S3_webshop.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderController : ControllerBase
     {
+        private readonly IOrderRepo _orderRepository;
         private readonly WebshopContext _context;
 
-        public OrderController(WebshopContext context)
+        public OrderController(IOrderRepo orderRepository, WebshopContext context)
         {
+            _orderRepository = orderRepository;
             _context = context;
         }
 
         // GET: api/Orders
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Orders
-                .Include(e => e.OrderItems)
-                .ThenInclude(o => o.Product)
-                .Include(e => e.User)
-                .ToListAsync();
+            try
+            {
+                List<Order> orders = await _orderRepository.GetAllOrdersWithRelatedData();
+                return Ok(orders);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
+
         }
 
         // GET: api/Orders/5
@@ -41,18 +49,26 @@ namespace S3_webshop.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var order = await _context.Orders
-                .Include(e => e.OrderItems)
-                .ThenInclude(o => o.Product)
-                .Include(e => e.User)
-                .FirstAsync(e => e.Id == id);
-
-            if (order == null)
+            try
             {
-                return NotFound();
+                var order = await _context.Orders
+                    .Include(e => e.OrderItems)
+                    .ThenInclude(o => o.Product)
+                    .Include(e => e.User)
+                    .FirstAsync(e => e.Id == id);
+
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(order);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
             }
 
-            return order;
         }
 
         // PUT: api/Orders/5

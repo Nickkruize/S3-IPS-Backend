@@ -32,27 +32,27 @@ namespace S3_webshop.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<ProductResource> Get()
+        public async Task<ActionResult<IEnumerable<ProductResource>>> Get()
         {
-            List<Product> products = productService.GetAllWithCategories().ToList();
-            return mapper.Map<List<Product>, List<ProductResource>>(products);
+            IEnumerable<Product> products = await productService.GetAllWithCategories();
+            return mapper.Map<List<Product>, List<ProductResource>>(products.ToList());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ProductWithCategoriesResource> Get(int id)
+        public async Task<ActionResult<ProductWithCategoriesResource>> Get(int id)
         {     
-            if (productService.GetById(id) == null)
+            if (await productService.GetById(id) == null)
             {
                 return NotFound();
             }
 
-            Product product = productService.GetByIdWithCategories(id);
+            Product product = await productService.GetByIdWithCategories(id);
             ProductWithCategoriesResource result = mapper.Map<Product, ProductWithCategoriesResource>(product);
             return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, ProductResource product, int categoryId)
+        public async Task<IActionResult> Put(int id, ProductResource product, int categoryId)
         {
             if (!ModelState.IsValid)
             {
@@ -66,11 +66,11 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            productService.Update(product1, categoryId);
+            await productService.Update(product1, categoryId);
 
             try
             {
-                productService.Save();
+                await productService.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -88,7 +88,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post(NewProductResource input)
+        public async Task<IActionResult> Post(NewProductResource input)
         {
             if (!ModelState.IsValid)
             {
@@ -99,8 +99,8 @@ namespace S3_webshop.Controllers
 
             try
             {
-                productService.AddProduct(product);
-                productService.Save();
+                await productService.AddProduct(product);
+                await productService.Save();
 
                 return CreatedAtAction("Get", new { id = product.Id }, product);
             }
@@ -111,9 +111,9 @@ namespace S3_webshop.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            Product product = productService.GetById(id);
+            Product product = await productService.GetById(id);
 
             if (product == null)
             {
@@ -123,12 +123,12 @@ namespace S3_webshop.Controllers
             try
             {
                 productService.Delete(product);
-                productService.Save();
+                await productService.Save();
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.InnerException.Message);
             }
         }
 

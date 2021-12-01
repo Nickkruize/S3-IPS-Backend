@@ -29,22 +29,22 @@ namespace S3_webshop.Controllers
         }
         // GET: api/<CategoryController>
         [HttpGet]
-        public IEnumerable<CategoryResource> Get()
+        public async Task<ActionResult<IEnumerable<CategoryResource>>> Get()
         {
-            List<Category> categories = categoryRepo.FindAll().ToList();
-            return mapper.Map<List<Category>, List<CategoryResource>>(categories);
+            IEnumerable<Category> categories = await categoryRepo.FindAll();
+            return mapper.Map<List<Category>, List<CategoryResource>>(categories.ToList());
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
-        public ActionResult<CategoryProductResource> Get(int id)
+        public async Task<ActionResult<CategoryProductResource>> Get(int id)
         {
-            if (categoryRepo.GetById(id) == null)
+            if (await categoryRepo.GetById(id) == null)
             {
                 return NotFound();
             }
 
-            Category category = categoryRepo.FindByIdWithProducts(id);
+            Category category = await categoryRepo.FindByIdWithProducts(id);
 
             CategoryProductResource result = mapper.Map<Category, CategoryProductResource>(category);
             return Ok(result);
@@ -52,7 +52,7 @@ namespace S3_webshop.Controllers
 
         // POST api/<CategoryController>
         [HttpPost]
-        public IActionResult Post([FromBody] NewCategoryResource vm)
+        public async Task<IActionResult> Post([FromBody] NewCategoryResource vm)
         {
             if (!ModelState.IsValid)
             {
@@ -63,8 +63,8 @@ namespace S3_webshop.Controllers
 
             try
             {
-                categoryRepo.Create(category);
-                categoryRepo.Save();
+                await categoryRepo.Create(category);
+                await categoryRepo.Save();
 
                 return CreatedAtAction("Get", new { id = category.Id }, category);
             }
@@ -76,7 +76,7 @@ namespace S3_webshop.Controllers
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] CategoryResource vm)
+        public async Task<IActionResult> Put(int id, [FromBody] CategoryResource vm)
         {
             if (!ModelState.IsValid)
             {
@@ -93,7 +93,7 @@ namespace S3_webshop.Controllers
             try
             {
                 categoryRepo.Update(category);
-                categoryRepo.Save();
+                await categoryRepo.Save();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -112,9 +112,9 @@ namespace S3_webshop.Controllers
 
         // DELETE api/<CategoryController>/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            Category category = categoryRepo.GetById(id);
+            Category category = await categoryRepo.GetById(id);
 
             if (category == null)
             {
@@ -124,7 +124,7 @@ namespace S3_webshop.Controllers
             try
             {
                 categoryRepo.Delete(category);
-                categoryRepo.Save();
+                await categoryRepo.Save();
                 return Accepted("category deleted");
             }
             catch (Exception ex)

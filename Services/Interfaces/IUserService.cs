@@ -2,16 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
     public interface IUserService
     {
-        User RegisterUser(string email, string password, string username);
-        //bool Login(User user);
-        IEnumerable<User> GetAll();
-        User GetById(int id);
-        //User GetByEmail(string email);
-        void Save();
+        Task<IEnumerable<User>> GetAll();
+        Task<User> GetById(int id);
+        Task Save();
     }
 }

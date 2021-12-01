@@ -4,6 +4,7 @@ using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Services
 {
@@ -18,29 +19,29 @@ namespace Services
             this.categoryRepo = categoryRepo;
         }
 
-        public IEnumerable<Product> GetAll()
+        public async Task<IEnumerable<Product>> GetAll()
         {
-            return productRepo.FindAll();
+            return await productRepo.FindAll();
         }
 
-        public IEnumerable<Product> GetAllWithCategories()
+        public async Task<IEnumerable<Product>> GetAllWithCategories()
         {
-            return productRepo.FindAllWithProductCategories();
+            return await productRepo.FindAllWithProductCategories();
         }
 
-        public Product GetById(int id)
+        public async Task<Product> GetById(int id)
         {
-            return productRepo.GetById(id);
+            return await productRepo.GetById(id);
         }
 
-        public Product GetByIdWithCategories(int id)
+        public async Task<Product> GetByIdWithCategories(int id)
         {
-            return productRepo.FindByIdWithCategoires(id);
+            return await productRepo.FindByIdWithCategoires(id);
         }
 
-        public void Update(Product product, int categoryId)
+        public async Task Update(Product product, int categoryId)
         {
-            Category category = categoryRepo.GetById(categoryId);
+            Category category = await categoryRepo.GetById(categoryId);
             List<Category> categories = new List<Category>
             {
                 category
@@ -49,18 +50,18 @@ namespace Services
             productRepo.Update(product);
         }
 
-        public void Save()
+        public async Task Save()
         {
-            productRepo.Save();
+            await productRepo.Save();
         }
         public void Delete(Product product)
         {
             productRepo.Delete(product);
         }
 
-        public int AddProduct(Product product)
+        public async Task<Product> AddProduct(Product product)
         {
-            return productRepo.AddProduct(product);
+            return await productRepo.Create(product);
         }
     }
 }

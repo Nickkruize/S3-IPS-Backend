@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Repositories.Repositories
 {
@@ -18,9 +19,9 @@ namespace Repositories.Repositories
             _context = db;
         }
 
-        public Category FindByIdWithProducts (int id)
+        public async Task<Category> FindByIdWithProducts(int id)
         {
-            return this._context.Categories.Include(p => p.Products).FirstOrDefault(e => e.Id == id);
+            return await this._context.Categories.Include(p => p.Products).FirstOrDefaultAsync(e => e.Id == id);
         }
     }
 }
