@@ -22,6 +22,9 @@ using Microsoft.AspNetCore.Identity;
 using System.Reflection;
 using System.IO;
 using System;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace S3_webshop
 {
@@ -72,63 +75,75 @@ namespace S3_webshop
                     };
                 });
 
-            services.AddIdentityCore<IdentityUser>(options =>
-            options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<WebshopContext>();
+            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            //    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            //    {
+            //        options.Cookie.Name = "UserLoginCookie";
+            //        options.ExpireTimeSpan = new TimeSpan(1, 0, 0); // Expires in 1 hour
+            //        options.Events.OnRedirectToLogin = (context) =>
+            //        {
+            //            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //            return Task.CompletedTask;
+            //        };
+            //        options.Cookie.HttpOnly = true;
 
-            services.AddSignalR();
+                    services.AddIdentityCore<IdentityUser>(options =>
+                    options.SignIn.RequireConfirmedAccount = true)
+                    .AddRoles<IdentityRole>()
+                    .AddEntityFrameworkStores<WebshopContext>();
 
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("MustHaveId", policy => policy.RequireClaim("Id", "5fb37a20-76ab-402e-bb68-aaf32bdc2eaa"));
-            //});
+                    services.AddSignalR();
 
-            if (Environment.IsDevelopment())
-            {
-                services.AddDbContext<WebshopContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("LocalDb")));
-            }
-            else
-            {
-                services.AddDbContext<WebshopContext>(optionsbuilder =>
-                {
-                    optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                });
-            }
-            services.AddAutoMapper(typeof(Startup));
+                    //services.AddAuthorization(options =>
+                    //{
+                    //    options.AddPolicy("MustHaveId", policy => policy.RequireClaim("Id", "5fb37a20-76ab-402e-bb68-aaf32bdc2eaa"));
+                    //});
 
-            services.AddScoped<IProductRepo, ProductRepo>();
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ICategoryRepo, CategoryRepo>();
-            services.AddScoped<IUserRepo, UserRepo>();
-            services.AddScoped<IOrderRepo, OrderRepo>();
-            services.AddScoped<IOrderItemRepo, OrderItemRepo>();
-            services.AddScoped<IOrderService, OrderService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IJwtService, JwtService>();
+                    if (Environment.IsDevelopment())
+                    {
+                        services.AddDbContext<WebshopContext>(options =>
+                        options.UseSqlServer(Configuration.GetConnectionString("LocalDb")));
+                    }
+                    else
+                    {
+                        services.AddDbContext<WebshopContext>(optionsbuilder =>
+                        {
+                            optionsbuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                        });
+                    }
+                    services.AddAutoMapper(typeof(Startup));
 
-            services.AddControllers().AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-            );
+                    services.AddScoped<IProductRepo, ProductRepo>();
+                    services.AddScoped<IProductService, ProductService>();
+                    services.AddScoped<ICategoryRepo, CategoryRepo>();
+                    services.AddScoped<IUserRepo, UserRepo>();
+                    services.AddScoped<IOrderRepo, OrderRepo>();
+                    services.AddScoped<IOrderItemRepo, OrderItemRepo>();
+                    services.AddScoped<IOrderService, OrderService>();
+                    services.AddScoped<IUserService, UserService>();
+                    services.AddScoped<IJwtService, JwtService>();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
+                    services.AddControllers().AddNewtonsoftJson(options =>
+                        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                    );
+
+                    services.AddSwaggerGen(c =>
+                    {
+                        c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebShop", Version = "v1" });
+                        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                        {
+                            Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n 
                       Enter 'Bearer' [space] and then your token in the text input below.
                       \r\n\r\nExample: 'Bearer 12345abcdef'",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
+                            Name = "Authorization",
+                            In = ParameterLocation.Header,
+                            Type = SecuritySchemeType.ApiKey,
+                            Scheme = "Bearer"
+                        });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
-                    {         
+                        c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                        {
+                    {
                         new OpenApiSecurityScheme{
                             Reference = new OpenApiReference
                             {
@@ -141,8 +156,8 @@ namespace S3_webshop
                         },
                         new List<string>()
                     }
-                });
-            });
+                        });
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

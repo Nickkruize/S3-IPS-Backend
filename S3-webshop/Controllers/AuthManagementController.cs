@@ -139,6 +139,11 @@ namespace S3_webshop.Controllers
                 }
                 string jwtToken = _jwtService.GenerateJwtToken(existingUser, Roles);
 
+                HttpContext.Response.Cookies.Append("UserLoginCookie", jwtToken, new CookieOptions
+                {
+                    HttpOnly = true 
+                });
+
                 return Ok(new LoginResponse()
                 {
                     Succes = true,
