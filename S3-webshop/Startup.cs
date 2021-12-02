@@ -73,6 +73,14 @@ namespace S3_webshop
                         ValidateLifetime = true,
                         RequireExpirationTime = false
                     };
+                    jwt.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            context.Token = context.Request.Cookies["UserLoginCookie"];
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
 
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
