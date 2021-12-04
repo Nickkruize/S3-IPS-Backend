@@ -17,13 +17,13 @@ namespace S3_webshop.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService userService;
-        private readonly IMapper mapper;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
         public UserController(IMapper mapper, IUserService userService)
         {
-            this.mapper = mapper;
-            this.userService = userService;
+            _mapper = mapper;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -31,8 +31,8 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                IEnumerable<User> users = await userService.GetAll();
-                return Ok(mapper.Map<List<User>, List<UserResource>>(users.ToList()));
+                IEnumerable<User> users = await _userService.GetAll();
+                return Ok(_mapper.Map<List<User>, List<UserResource>>(users.ToList()));
             }
             catch(Exception ex)
             {
@@ -46,14 +46,14 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                User user = await userService.GetById(id);
+                User user = await _userService.GetById(id);
 
                 if (user == null)
                 {
                     return NotFound();
                 }
 
-                UserResource result = mapper.Map<User, UserResource>(user);
+                UserResource result = _mapper.Map<User, UserResource>(user);
                 return Ok(result);
 
             }

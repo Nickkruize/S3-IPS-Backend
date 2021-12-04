@@ -22,12 +22,15 @@ namespace S3_webshop.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtService _jwtService;
+        private readonly IUserService _userService;
 
-        public AuthManagementController(UserManager<IdentityUser> userManager, IJwtService jwtService, RoleManager<IdentityRole> roleManager)
+        public AuthManagementController(UserManager<IdentityUser> userManager, IJwtService jwtService, RoleManager<IdentityRole> roleManager,
+            IUserService userService)
         {
             _userManager = userManager;
             _jwtService = jwtService;
             _roleManager = roleManager;
+            _userService = userService;
         }
 
         [HttpPost]
@@ -130,13 +133,8 @@ namespace S3_webshop.Controllers
                     });
                 }
 
-                IList<string> roleNames = await _userManager.GetRolesAsync(existingUser);
-                List<IdentityRole> Roles = new List<IdentityRole>();
-                foreach (string rolename in roleNames)
-                {
-                    IdentityRole Role = await _roleManager.FindByNameAsync(rolename);
-                    Roles.Add(Role);
-                }
+                List<IdentityRole> Roles = await _userService.GetUserRoles(existingUser);
+
                 string jwtToken = _jwtService.GenerateJwtToken(existingUser, Roles);
 
                 HttpContext.Response.Cookies.Append("UserLoginCookie", jwtToken, new CookieOptions

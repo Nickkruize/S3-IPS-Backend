@@ -34,21 +34,36 @@ namespace S3_webshop.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductResource>>> Get()
         {
-            IEnumerable<Product> products = await productService.GetAllWithCategories();
-            return mapper.Map<List<Product>, List<ProductResource>>(products.ToList());
+            try
+            {
+                IEnumerable<Product> products = await productService.GetAllWithCategories();
+                return mapper.Map<List<Product>, List<ProductResource>>(products.ToList());
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
+
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductWithCategoriesResource>> Get(int id)
-        {     
-            if (await productService.GetById(id) == null)
+        {
+            try
             {
-                return NotFound();
-            }
+                if (await productService.GetById(id) == null)
+                {
+                    return NotFound();
+                }
 
-            Product product = await productService.GetByIdWithCategories(id);
-            ProductWithCategoriesResource result = mapper.Map<Product, ProductWithCategoriesResource>(product);
-            return Ok(result);
+                Product product = await productService.GetByIdWithCategories(id);
+                ProductWithCategoriesResource result = mapper.Map<Product, ProductWithCategoriesResource>(product);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -59,20 +74,19 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            Product product1 = mapper.Map<ProductResource, Product>(product);
+            Product updatedProduct = mapper.Map<ProductResource, Product>(product);
 
             if (id != product.Id)
             {
-                return BadRequest();
+                return BadRequest("submitted Id doesn't match productId");
             }
-
-            await productService.Update(product1, categoryId);
 
             try
             {
+                await productService.Update(updatedProduct, categoryId);
                 await productService.Save();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!ProductExists(id))
                 {
@@ -80,11 +94,11 @@ namespace S3_webshop.Controllers
                 }
                 else
                 {
-                    return BadRequest("Generic Error");
+                    return BadRequest(ex.Message);
                 }
             }
 
-            return CreatedAtAction("Get", new { id = id }, id);
+            return CreatedAtAction(nameof(Get), new { id = updatedProduct.Id }, updatedProduct);
         }
 
         [HttpPost]
@@ -92,43 +106,43 @@ namespace S3_webshop.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest("Invalid information");
             }
-
-            Product product = mapper.Map<NewProductResource, Product>(input);
 
             try
             {
+                Product product = mapper.Map<NewProductResource, Product>(input);
+
                 await productService.AddProduct(product);
                 await productService.Save();
 
-                return CreatedAtAction("Get", new { id = product.Id }, product);
+                return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest();
+                return StatusCode(500, ex.InnerException.Message);
             }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            Product product = await productService.GetById(id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
             try
             {
+                Product product = await productService.GetById(id);
+                
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                
                 productService.Delete(product);
                 await productService.Save();
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.InnerException.Message);
+                return StatusCode(500, ex.InnerException.Message);
             }
         }
 

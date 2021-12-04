@@ -1,4 +1,5 @@
 ﻿using DAL.ContextModels;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,5 +12,6 @@ namespace Services.Interfaces
         Task<IEnumerable<User>> GetAll();
         Task<User> GetById(int id);
         Task Save();
+        Task<List<IdentityRole>> GetUserRoles(IdentityUser user);
     }
 }

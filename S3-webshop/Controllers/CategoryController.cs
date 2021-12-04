@@ -19,35 +19,49 @@ namespace S3_webshop.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepo categoryRepo;
-        private readonly IMapper mapper;
+        private readonly ICategoryRepo _categoryRepo;
+        private readonly IMapper _mapper;
 
         public CategoryController(ICategoryRepo categoryRepo, IMapper mapper)
         {
-            this.categoryRepo = categoryRepo;
-            this.mapper = mapper;
+            _categoryRepo = categoryRepo;
+            _mapper = mapper;
         }
         // GET: api/<CategoryController>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryResource>>> Get()
         {
-            IEnumerable<Category> categories = await categoryRepo.FindAll();
-            return mapper.Map<List<Category>, List<CategoryResource>>(categories.ToList());
+            try
+            {
+                IEnumerable<Category> categories = await _categoryRepo.FindAll();
+                return _mapper.Map<List<Category>, List<CategoryResource>>(categories.ToList());
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
         }
 
         // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryProductResource>> Get(int id)
         {
-            if (await categoryRepo.GetById(id) == null)
+            try
             {
-                return NotFound();
+                if (await _categoryRepo.GetById(id) == null)
+                {
+                    return NotFound();
+                }
+
+                Category category = await _categoryRepo.FindByIdWithProducts(id);
+
+                CategoryProductResource result = _mapper.Map<Category, CategoryProductResource>(category);
+                return Ok(result);
             }
-
-            Category category = await categoryRepo.FindByIdWithProducts(id);
-
-            CategoryProductResource result = mapper.Map<Category, CategoryProductResource>(category);
-            return Ok(result);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
         }
 
         // POST api/<CategoryController>
@@ -59,18 +73,16 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            Category category = mapper.Map<NewCategoryResource, Category>(vm);
-
             try
             {
-                await categoryRepo.Create(category);
-                await categoryRepo.Save();
-
-                return CreatedAtAction("Get", new { id = category.Id }, category);
+                Category category = _mapper.Map<NewCategoryResource, Category>(vm);
+                await _categoryRepo.Create(category);
+                await _categoryRepo.Save();
+                return CreatedAtAction(nameof(Get), new { id = category.Id }, category);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return StatusCode(500, ex.InnerException.Message);
             }
         }
 
@@ -83,7 +95,7 @@ namespace S3_webshop.Controllers
                 return BadRequest();
             }
 
-            Category category = mapper.Map<CategoryResource, Category>(vm);
+            Category category = _mapper.Map<CategoryResource, Category>(vm);
 
             if (id != vm.Id)
             {
@@ -92,8 +104,8 @@ namespace S3_webshop.Controllers
 
             try
             {
-                categoryRepo.Update(category);
-                await categoryRepo.Save();
+                _categoryRepo.Update(category);
+                await _categoryRepo.Save();
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -114,29 +126,29 @@ namespace S3_webshop.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            Category category = await categoryRepo.GetById(id);
-
-            if (category == null)
-            {
-                return NotFound();
-            }
-
             try
             {
-                categoryRepo.Delete(category);
-                await categoryRepo.Save();
+                Category category = await _categoryRepo.GetById(id);
+                
+                if (category == null)
+                {
+                    return NotFound();
+                }
+
+                _categoryRepo.Delete(category);
+                await _categoryRepo.Save();
                 return Accepted("category deleted");
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.InnerException.Message);
             }
         }
 
         [NonAction]
         private bool CategoryExists(int id)
         {
-            if (categoryRepo.GetById(id) != null)
+            if (_categoryRepo.GetById(id) != null)
             {
                 return true;
             }
