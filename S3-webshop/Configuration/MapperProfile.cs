@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Identity;
 using S3_webshop.Resources;
 
 namespace S3_webshop.Configuration
@@ -24,9 +25,12 @@ namespace S3_webshop.Configuration
             CreateMap<Category, CategoryProductResource>()
                 .ForMember(dto => dto.Products, opt => opt.MapFrom(x => x.Products));
 
-            CreateMap<User, UserResource>();
-            CreateMap<UserResource, User>();
+            CreateMap<IdentityUser, UserResource>();
+            CreateMap<UserResource, IdentityUser>();
             CreateMap<NewUserResource, User>();
+
+            CreateMap<Order, OrdersResource>();
+            CreateMap<OrderItem, OrderItemResource>();
         }
 
     }

@@ -3,6 +3,7 @@ using Repositories.Interfaces;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,11 +18,6 @@ namespace Services
         {
             this.productRepo = productRepo;
             this.categoryRepo = categoryRepo;
-        }
-
-        public async Task<IEnumerable<Product>> GetAll()
-        {
-            return await productRepo.FindAll();
         }
 
         public async Task<IEnumerable<Product>> GetAllWithCategories()
@@ -62,6 +58,22 @@ namespace Services
         public async Task<Product> AddProduct(Product product)
         {
             return await productRepo.Create(product);
+        }
+
+        public async Task<Product> AppendCategoriesToProduct(List<int> ids, Product product)
+        {
+            product.Categories = await categoryRepo.FindByCondition(e => ids.Contains(e.Id)) as List<Category>;
+            return product;
+        }
+
+        public bool VerifyAllSubmittedCategoriesWhereFound(Product product, List<int> categoryIds)
+        {
+            if (product.Categories.Count() != categoryIds.Count())
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

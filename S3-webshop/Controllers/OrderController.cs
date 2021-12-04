@@ -10,6 +10,9 @@ using DAL.ContextModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Repositories.Interfaces;
+using S3_webshop.Resources;
+using AutoMapper;
+using Services.Interfaces;
 
 namespace S3_webshop.Controllers
 {
@@ -19,23 +22,28 @@ namespace S3_webshop.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepo _orderRepository;
+        private readonly IOrderService _orderService;
         private readonly WebshopContext _context;
+        private readonly IMapper _mapper;
 
-        public OrderController(IOrderRepo orderRepository, WebshopContext context)
+        public OrderController(IOrderRepo orderRepository, WebshopContext context, IMapper mapper, IOrderService orderService)
         {
             _orderRepository = orderRepository;
+            _orderService = orderService;
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Orders
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrdersResource>>> GetOrders()
         {
             try
             {
-                List<Order> orders = await _orderRepository.GetAllOrdersWithRelatedData();
-                return Ok(orders);
+                List<Order> orders = await _orderService.GetAll();
+                List<OrdersResource> result = _mapper.Map<List<Order>, List<OrdersResource>>(orders);
+                return Ok(result);
             }
             catch(Exception ex)
             {
@@ -51,31 +59,49 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                var order = await _context.Orders
-                    .Include(e => e.OrderItems)
-                    .ThenInclude(o => o.Product)
-                    .Include(e => e.User)
-                    .FirstAsync(e => e.Id == id);
+                var order = await _orderService.GetById(id);
 
                 if (order == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(order);
+                OrdersResource result = _mapper.Map<Order, OrdersResource>(order);
+                return Ok(result);
             }
             catch(Exception ex)
             {
                 return StatusCode(500, ex.InnerException.Message);
             }
+        }
 
+        [HttpGet("GetByUser/{userId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Order>> GetOrderByUser(string userId)
+        {
+            try
+            {
+                var order = await _orderService.GetByUserId(userId);
+
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                OrdersResource result = _mapper.Map<Order, OrdersResource>(order);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
         }
 
         // PUT: api/Orders/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(int id, Order order)
+        public async Task<IActionResult> PutOrder(int id, Order order )
         {
             if (id != order.Id)
             {
@@ -117,18 +143,22 @@ namespace S3_webshop.Controllers
 
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Order>> DeleteOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _orderService.GetById(id);
             if (order == null)
             {
                 return NotFound();
             }
 
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
+            bool isDeleted = await _orderService.DeleteOrder(order);
+            if (isDeleted)
+            {
+                return NoContent();
+            }
 
-            return order;
+            return StatusCode(500, "Error deleting the order");
         }
 
         private bool OrderExists(int id)

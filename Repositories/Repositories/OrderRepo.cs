@@ -27,5 +27,23 @@ namespace Repositories.Repositories
                 .Include(e => e.User)
                 .ToListAsync();
         }
+
+        public async Task<Order> GetOrderByIdWithRelatedData(int id)
+        {
+            return await _context.Orders
+                .Include(e => e.OrderItems)
+                .ThenInclude(o => o.Product)
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(o => o.Id == id);
+        }
+
+        public async Task<Order> GetOrderByUserId(string id)
+        {
+            return await _context.Orders
+                .Include(e => e.OrderItems)
+                .ThenInclude(o => o.Product)
+                .Include(e => e.User)
+                .FirstOrDefaultAsync(o => o.User.Id == id);
+        }
     }
 }

@@ -113,6 +113,13 @@ namespace S3_webshop.Controllers
             {
                 Product product = mapper.Map<NewProductResource, Product>(input);
 
+                product = await productService.AppendCategoriesToProduct(input.CategoryIds, product);
+
+                if (!productService.VerifyAllSubmittedCategoriesWhereFound(product, input.CategoryIds))
+                {
+                    return BadRequest("One or more invalid CategoryIds");
+                }
+
                 await productService.AddProduct(product);
                 await productService.Save();
 
