@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using S3_webshop.Hubs;
-using S3_webshop.Hubs.Clients;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using S3_webshop.Hubs;
+using S3_webshop.Hubs.Clients;
 using S3_webshop.Resources;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Threading.Tasks;
 
 namespace S3_webshop.Controllers
 {

@@ -1,9 +1,6 @@
-﻿using DAL.ContextModels;
-using S3_webshop.Validation;
-using System;
+﻿using S3_webshop.Validation;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace S3_webshop.Resources
 {

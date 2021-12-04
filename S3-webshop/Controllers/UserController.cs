@@ -1,15 +1,12 @@
-﻿using System;
+﻿using AutoMapper;
+using DAL.ContextModels;
+using Microsoft.AspNetCore.Mvc;
+using S3_webshop.Resources;
+using Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using DAL.ContextModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using S3_webshop.Resources;
-using Services;
-using Services.Interfaces;
 
 namespace S3_webshop.Controllers
 {

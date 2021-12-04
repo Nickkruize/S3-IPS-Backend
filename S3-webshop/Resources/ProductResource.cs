@@ -1,8 +1,3 @@
-using DAL.ContextModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace S3_webshop.Resources
 {
     public class ProductResource

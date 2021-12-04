@@ -1,6 +1,5 @@
 ﻿using DAL;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;

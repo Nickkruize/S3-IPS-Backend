@@ -2,9 +2,7 @@
 using DAL.ContextModels;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repositories.Repositories
