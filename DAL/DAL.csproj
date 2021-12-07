@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
 
-    <SonarQubeSetting Include="sonar.coverage.exclusions">
+    <SonarQubeSetting Include="sonar.cpd.exclusions">
       <Value>**</Value>
     </SonarQubeSetting>
   </ItemGroup>
