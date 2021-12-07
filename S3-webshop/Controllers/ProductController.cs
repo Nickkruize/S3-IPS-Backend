@@ -29,12 +29,12 @@ namespace S3_webshop.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductResource>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductWithCategoryResource>>> Get()
         {
             try
             {
                 IEnumerable<Product> products = await _productService.GetAllWithCategories();
-                return Ok(_mapper.Map<List<Product>, List<ProductResource>>(products.ToList()));
+                return Ok(_mapper.Map<List<Product>, List<ProductWithCategoryResource>>(products.ToList()));
             }
             catch(Exception ex)
             {
@@ -64,14 +64,14 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, ProductResource product, int categoryId)
+        public async Task<IActionResult> Put(int id, ProductWithCategoryResource product, int categoryId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            Product updatedProduct = _mapper.Map<ProductResource, Product>(product);
+            Product updatedProduct = _mapper.Map<ProductWithCategoryResource, Product>(product);
 
             if (id != product.Id)
             {

@@ -1,6 +1,6 @@
 namespace S3_webshop.Resources
 {
-    public class ProductResource
+    public class ProductWithCategoryResource
     {
         public int Id { get; set; }
         public string Name { get; set; }

@@ -63,15 +63,43 @@ namespace WebshopTests.ControllerTests
                 product, product2
             };
 
-            List<ProductResource> productResources = _mapper.Map<List<Product>, List<ProductResource>>(Products);
+            List<ProductWithCategoryResource> productResources = _mapper.Map<List<Product>, List<ProductWithCategoryResource>>(Products);
 
             var result = await service.GetAllWithCategories();
             Assert.IsTrue(Products.IsDeepEqual(result));
 
             var controllerResult = await controller.Get();
             Assert.IsInstanceOfType(controllerResult.Result, typeof(OkObjectResult));
-            var actual = (controllerResult.Result as OkObjectResult).Value as List<ProductResource>;
+            var actual = (controllerResult.Result as OkObjectResult).Value as List<ProductWithCategoryResource>;
             Assert.IsTrue(productResources.IsDeepEqual(actual));
+        }
+
+        [TestMethod]
+        public async Task ItReturnsOkResultWithCorrectDataForGetId()
+        {
+            ProductRepo productRepo = new ProductRepo(SqlLiteInMemoryContext());
+            CategoryRepo categoryRepo = new CategoryRepo(SqlLiteInMemoryContext());
+            ProductService service = new ProductService(productRepo, categoryRepo);
+            ProductController controller = new ProductController(service, _mapper);
+            Product product = new Product
+            {
+                Description = "coole beschrijving",
+                ImgUrl = "random image",
+                Name = "testproduct",
+                Price = 9.99
+            };
+
+            await productRepo.Create(product);
+            await productRepo.Save();
+
+            ProductWithCategoriesResource productResource = _mapper.Map<Product, ProductWithCategoriesResource>(product);
+            var result = await service.GetById(1);
+            Assert.IsTrue(product.IsDeepEqual(result));
+
+            var controllerResult = await controller.Get(1);
+            Assert.IsInstanceOfType(controllerResult.Result, typeof(OkObjectResult));
+            var actual = (controllerResult.Result as OkObjectResult).Value as ProductWithCategoriesResource;
+            Assert.IsTrue(productResource.IsDeepEqual(actual));
         }
 
     }

@@ -9,9 +9,9 @@ namespace S3_webshop.Configuration
     {
         public MapperProfile()
         {
-            CreateMap<ProductResource, Product>();
+            CreateMap<ProductWithCategoryResource, Product>();
             CreateMap<NewProductResource, Product>();
-            CreateMap<Product, ProductResource>();
+            CreateMap<Product, ProductWithCategoryResource>();
             CreateMap<Product, ProductWithCategoriesResource>()
                 .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.Categories));
 

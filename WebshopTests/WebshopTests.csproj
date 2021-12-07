@@ -20,6 +20,10 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\Repositories\Repositories.csproj" />
     <ProjectReference Include="..\S3-webshop\S3-webshop.csproj" />
+
+    <SonarQubeSetting Include="sonar.coverage.inclusions">
+      <Value>**</Value>
+    </SonarQubeSetting>
   </ItemGroup>
 
 </Project>
