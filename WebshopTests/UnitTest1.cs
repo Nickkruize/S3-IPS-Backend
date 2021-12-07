@@ -1,5 +1,9 @@
+using System.Collections.Generic;
+using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using S3_webshop.Controllers;
+using S3_webshop;
+using System.Linq;
 
 namespace WebshopTests
 {
@@ -37,6 +41,16 @@ namespace WebshopTests
 
             int result = controller.Testfunction(10);
             Assert.AreEqual(20, result);
+        }
+
+        [TestMethod]
+        public void TestWeatherControllerGet()
+        {
+            WeatherForecastController controller = new WeatherForecastController();
+
+            List<WeatherForecast> result = controller.Get().ToList();
+
+            Assert.AreEqual(5, result.Count);
         }
     }
 }

@@ -102,5 +102,31 @@ namespace WebshopTests.ControllerTests
             Assert.IsTrue(productResource.IsDeepEqual(actual));
         }
 
+        [TestMethod]
+        public async Task ItReturnsNotFoundForNonExistingId()
+        {
+            ProductRepo productRepo = new ProductRepo(SqlLiteInMemoryContext());
+            CategoryRepo categoryRepo = new CategoryRepo(SqlLiteInMemoryContext());
+            ProductService service = new ProductService(productRepo, categoryRepo);
+            ProductController controller = new ProductController(service, _mapper);
+            Product product = new Product
+            {
+                Description = "coole beschrijving",
+                ImgUrl = "random image",
+                Name = "testproduct",
+                Price = 9.99
+            };
+
+            await productRepo.Create(product);
+            await productRepo.Save();
+
+            ProductWithCategoriesResource productResource = _mapper.Map<Product, ProductWithCategoriesResource>(product);
+            var result = await service.GetById(2);
+            Assert.IsNull(result);
+
+            var controllerResult = await controller.Get(2);
+            Assert.IsInstanceOfType(controllerResult.Result, typeof(NotFoundResult));
+        }
+
     }
 }
