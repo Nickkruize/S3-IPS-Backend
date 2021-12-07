@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
 
     <SonarQubeSetting Include="sonar.coverage.exclusions">
-      <Value>**/Migrations</Value>
+      <Value>**</Value>
     </SonarQubeSetting>
   </ItemGroup>
 
