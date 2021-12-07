@@ -41,6 +41,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         shell: powershell
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Nickkruize_S3-IPS-Backend" /o:"nickkruize" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:"sonar.cs.opencover.reportsPaths=:**\*coveragexml, **\*.xml"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"Nickkruize_S3-IPS-Backend" /o:"nickkruize" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:"sonar.cs.opencover.reportsPaths=:**\*.xml"
           dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover;
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
