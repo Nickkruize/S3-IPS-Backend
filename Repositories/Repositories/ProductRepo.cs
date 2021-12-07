@@ -1,12 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DAL;
+﻿using DAL;
 using DAL.ContextModels;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Repositories.Repositories
 {
@@ -19,21 +16,14 @@ namespace Repositories.Repositories
             _context = db;
         }
 
-        public int AddProduct(Product product)
+        public async Task<IEnumerable<Product>> FindAllWithProductCategories()
         {
-                EntityEntry<Product> created = this._context.Products.Add(product);
-                _context.SaveChanges();
-                return created.Entity.Id;
+            return await this._context.Products.Include(p => p.Categories).ToListAsync();
         }
 
-        public IEnumerable<Product> FindAllWithProductCategories()
+        public async Task<Product> FindByIdWithCategoires(int id)
         {
-            return this._context.Products.Include(p => p.Categories).ToList();
-        }
-
-        public Product FindByIdWithCategoires(int id)
-        {
-            return this._context.Products.Include(p => p.Categories).FirstOrDefault(e => e.Id == id);
+            return await this._context.Products.Include(p => p.Categories).FirstOrDefaultAsync(e => e.Id == id);
         }
     }
 }

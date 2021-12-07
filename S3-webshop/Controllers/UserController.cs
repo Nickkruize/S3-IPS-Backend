@@ -1,15 +1,12 @@
-﻿using System;
+﻿using AutoMapper;
+using DAL.ContextModels;
+using Microsoft.AspNetCore.Mvc;
+using S3_webshop.Resources;
+using Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using DAL.ContextModels;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using S3_webshop.Resources;
-using Services;
-using Services.Interfaces;
 
 namespace S3_webshop.Controllers
 {
@@ -17,125 +14,51 @@ namespace S3_webshop.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService userService;
-        private readonly IMapper mapper;
-        private readonly IJwtService jwtService;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(IMapper mapper, IUserService userService, IJwtService jwtService)
+        public UserController(IMapper mapper, IUserService userService)
         {
-            this.mapper = mapper;
-            this.userService = userService;
-            this.jwtService = jwtService;
+            _mapper = mapper;
+            _userService = userService;
         }
 
         [HttpGet]
-        public IEnumerable<UserResource> Get()
+        public async Task<ActionResult<IEnumerable<UserResource>>> Get()
         {
-            List<User> users = userService.GetAll().ToList();
-            return mapper.Map<List<User>, List<UserResource>>(users);
+            try
+            {
+                IEnumerable<User> users = await _userService.GetAll();
+                return Ok(_mapper.Map<List<User>, List<UserResource>>(users.ToList()));
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
+
         }
 
         [HttpGet("{id}")]
-        public ActionResult<UserResource> Get(int id)
+        public async Task<ActionResult<UserResource>> Get(int id)
         {
-            User user = userService.GetById(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            UserResource result = mapper.Map<User, UserResource>(user);
-            return Ok(result);
-        }
-
-        [HttpPost]
-        public IActionResult Post(NewUserResource input)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            User user = mapper.Map<NewUserResource, User>(input);
-
             try
             {
-                userService.RegisterUser(user.Email, user.Password);
-                userService.Save();
+                User user = await _userService.GetById(id);
 
-                return CreatedAtAction("Get", new { id = user.Id }, user);
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPost]
-        [Route("[action]")]
-        public IActionResult Login(LoginResource input)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            User user = mapper.Map<LoginResource, User>(input);
-
-            try
-            {
-                if (userService.Login(user))
+                if (user == null)
                 {
-                    UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
-                    var jwt = jwtService.Generate(userResponse.Id);
-
-                    //Response.Cookies.Append("jwt", jwt, new CookieOptions
-                    //{
-                    //    HttpOnly = true
-                    //});
-
-                    return Ok(userResponse);
+                    return NotFound();
                 }
 
-                return BadRequest("Incorrect information");
-                
+                UserResource result = _mapper.Map<User, UserResource>(user);
+                return Ok(result);
+
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest("Database Error");
+                return StatusCode(500, ex.InnerException.Message);
             }
+
         }
-
-        //[HttpGet("user")]
-        //public IActionResult User()
-        //{
-        //    try
-        //    {
-        //        var jwt = Request.Cookies["jwt"];
-
-        //        var token = jwtService.Verifty(jwt);
-
-        //        int userId = int.Parse(token.Issuer);
-
-        //        User user = userService.GetById(userId);
-
-        //        UserResource userResponse = mapper.Map<User, UserResource>(userService.GetByEmail(user.Email));
-
-        //        return Ok(userResponse);
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        return Unauthorized();
-        //    }
-        //}
-
-        //[HttpPost("Logout")]
-        //public IActionResult Logout()
-        //{
-        //    Response.Cookies.Delete("jwt");
-
-        //    return Ok("Logout succes");
-        //}
     }
 }

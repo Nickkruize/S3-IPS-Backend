@@ -1,17 +1,15 @@
 ﻿using DAL.ContextModels;
-using System;
+using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Services.Interfaces
 {
     public interface IUserService
     {
-        User RegisterUser(string email, string password);
-        bool Login(User user);
-        IEnumerable<User> GetAll();
-        User GetById(int id);
-        User GetByEmail(string email);
-        void Save();
+        Task<IEnumerable<User>> GetAll();
+        Task<User> GetById(int id);
+        Task Save();
+        Task<List<IdentityRole>> GetUserRoles(IdentityUser user);
     }
 }

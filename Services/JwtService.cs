@@ -1,42 +1,53 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using Services.Interfaces;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Services
 {
     public class JwtService : IJwtService
     {
         private string securityKey = "this is a very secure key";
+        private readonly IConfiguration _config;
 
-        public string Generate(int userId)
+        public JwtService(IConfiguration config)
         {
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
-            var credentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
-            var header = new JwtHeader(credentials);
-
-            var payload = new JwtPayload(userId.ToString(), null, null, null, DateTime.Today.AddDays(1));
-            var securityToken = new JwtSecurityToken(header, payload);
-            return new JwtSecurityTokenHandler().WriteToken(securityToken);
+            this._config = config;
         }
 
-        public JwtSecurityToken Verifty(string Jwt)
+        public string GenerateJwtToken(IdentityUser user, List<IdentityRole> roles)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(securityKey);
-            tokenHandler.ValidateToken(Jwt, new TokenValidationParameters
+            JwtSecurityTokenHandler jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            byte[] key = Encoding.ASCII.GetBytes(_config["Jwt:Secret"]);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = false,
-                ValidateAudience = false
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("Id", user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                }),
+                Expires = DateTime.UtcNow.AddHours(2),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
 
+            foreach (IdentityRole role in roles)
+            {
+                tokenDescriptor.Subject.AddClaim(new Claim(ClaimTypes.Role, role.Name));
             }
-            , out SecurityToken validatedToken);
 
-            return (JwtSecurityToken)validatedToken;
+            SecurityToken token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            string jwtToken = jwtTokenHandler.WriteToken(token);
+            return jwtToken;
         }
     }
 }

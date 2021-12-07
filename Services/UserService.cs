@@ -1,72 +1,51 @@
 ﻿using DAL.ContextModels;
+using Microsoft.AspNetCore.Identity;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepo userRepo;
+        private readonly IUserRepo _userRepo;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserService(IUserRepo userRepo)
+        public UserService(IUserRepo userRepo, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            this.userRepo = userRepo;
+            _userRepo = userRepo;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public User RegisterUser(string email, string password)
+        public async Task<IEnumerable<User>> GetAll()
         {
-            PasswordHasher passwordHasher = new PasswordHasher();
-            User user = new User
-            {
-                Email = email,
-                Password = passwordHasher.hashedPassword(password)
-            };
-
-            return userRepo.Create(user);
+            return await _userRepo.FindAll();
         }
 
-        public bool Login(User user)
+        public async Task<User> GetById(int id)
         {
-            PasswordHasher passwordHasher = new PasswordHasher();
-            try
+            return await _userRepo.GetById(id);
+        }
+
+        public async Task Save()
+        {
+            await _userRepo.Save();
+        }
+
+        public async Task<List<IdentityRole>> GetUserRoles(IdentityUser user)
+        {
+            IList<string> roleNames = await _userManager.GetRolesAsync(user);
+            List<IdentityRole> Roles = new List<IdentityRole>();
+            foreach (string rolename in roleNames)
             {
-                User StoredInfo = userRepo.FindByEmail(user.Email);
-                if (StoredInfo == null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return passwordHasher.verifyPassword(user.Password, StoredInfo.Password);
-                }
+                IdentityRole Role = await _roleManager.FindByNameAsync(rolename);
+                Roles.Add(Role);
             }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
 
-        public IEnumerable<User> GetAll()
-        {
-            return userRepo.FindAll();
-        }
-
-        public User GetById(int id)
-        {
-            return userRepo.GetById(id);
-        }
-
-        public User GetByEmail(string email)
-        {
-            return userRepo.FindByEmail(email);
-        }
-
-        public void Save()
-        {
-            userRepo.Save();
+            return Roles;
         }
     }
 }

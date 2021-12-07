@@ -1,10 +1,11 @@
 ﻿using DAL;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace Repositories.Repositories
 {
@@ -17,25 +18,26 @@ namespace Repositories.Repositories
             this.RepositoryContext = repositoryContext;
         }
 
-        public IEnumerable<T> FindAll()
+        public async Task<IEnumerable<T>> FindAll()
         {
-            return this.RepositoryContext.Set<T>().ToList();
+            return await this.RepositoryContext.Set<T>().ToListAsync();
         }
 
-        public IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression)
+        public async Task<IEnumerable<T>> FindByCondition(Expression<Func<T, bool>> expression)
         {
-            return this.RepositoryContext.Set<T>().Where(expression).ToList();
+            return await this.RepositoryContext.Set<T>().Where(expression).ToListAsync();
         }
 
-        public T GetById(int id)
+        public async Task<T> GetById(int id)
         {
-            return this.RepositoryContext.Set<T>().Find(id);
+            return await this.RepositoryContext.Set<T>().FindAsync(id);
         }
 
-        public T Create(T entity)
+        public async Task<T> Create(T entity)
         {
-            this.RepositoryContext.Set<T>().Add(entity);
-            return entity;
+            var result = await this.RepositoryContext.Set<T>().AddAsync(entity);
+            return result.Entity;
+            
         }
 
         public void Update(T entity)
@@ -53,9 +55,9 @@ namespace Repositories.Repositories
             this.RepositoryContext.Remove(RepositoryContext.Set<T>().Find(id));
         }
 
-        public void Save()
+        public async Task Save()
         {
-            this.RepositoryContext.SaveChangesAsync();
+            await this.RepositoryContext.SaveChangesAsync();
         }
 
         public void Dispose()

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace DAL.ContextModels
 {
@@ -14,6 +12,7 @@ namespace DAL.ContextModels
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
+        public string ImgUrl { get; set; }
 
         public ICollection<Category> Categories { get; set; }
     }

@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using DAL.ContextModels;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Repositories.Interfaces;
 using S3_webshop.Resources;
 using Services.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace S3_webshop.Controllers
 {
@@ -19,60 +18,74 @@ namespace S3_webshop.Controllers
     [Route("[controller]")]
     public class ProductController : ControllerBase
     {
-        private readonly IProductService productService;
-        private readonly IMapper mapper;
+        private readonly IProductService _productService;
+        private readonly IMapper _mapper;
 
         private readonly ILogger<ProductController> _logger;
 
         public ProductController(ILogger<ProductController> logger, IProductService productService, IMapper mapper)
         {
             _logger = logger;
-            this.productService = productService;
-            this.mapper = mapper;
+            _productService = productService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public IEnumerable<ProductResource> Get()
+        public async Task<ActionResult<IEnumerable<ProductResource>>> Get()
         {
-            List<Product> products = productService.GetAllWithCategories().ToList();
-            return mapper.Map<List<Product>, List<ProductResource>>(products);
+            try
+            {
+                IEnumerable<Product> products = await _productService.GetAllWithCategories();
+                return _mapper.Map<List<Product>, List<ProductResource>>(products.ToList());
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
+
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ProductWithCategoriesResource> Get(int id)
-        {     
-            if (productService.GetById(id) == null)
+        public async Task<ActionResult<ProductWithCategoriesResource>> Get(int id)
+        {
+            try
             {
-                return NotFound();
-            }
+                if (await _productService.GetById(id) == null)
+                {
+                    return NotFound();
+                }
 
-            Product product = productService.GetByIdWithCategories(id);
-            ProductWithCategoriesResource result = mapper.Map<Product, ProductWithCategoriesResource>(product);
-            return Ok(result);
+                Product product = await _productService.GetByIdWithCategories(id);
+                ProductWithCategoriesResource result = _mapper.Map<Product, ProductWithCategoriesResource>(product);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, ProductResource product, int categoryId)
+        public async Task<IActionResult> Put(int id, ProductResource product, int categoryId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            Product product1 = mapper.Map<ProductResource, Product>(product);
+            Product updatedProduct = _mapper.Map<ProductResource, Product>(product);
 
             if (id != product.Id)
             {
-                return BadRequest();
+                return BadRequest("submitted Id doesn't match productId");
             }
-
-            productService.Update(product1, categoryId);
 
             try
             {
-                productService.Save();
+                await _productService.Update(updatedProduct, categoryId);
+                await _productService.Save();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
                 if (!ProductExists(id))
                 {
@@ -80,62 +93,69 @@ namespace S3_webshop.Controllers
                 }
                 else
                 {
-                    return BadRequest("Generic Error");
+                    return BadRequest(ex.Message);
                 }
             }
 
-            return CreatedAtAction("Get", new { id = id }, id);
+            return CreatedAtAction(nameof(Get), new { id = updatedProduct.Id }, updatedProduct);
         }
 
         [HttpPost]
-        public IActionResult Post(NewProductResource input)
+        public async Task<IActionResult> Post(NewProductResource input)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest("Invalid information");
             }
-
-            Product product = mapper.Map<NewProductResource, Product>(input);
 
             try
             {
-                productService.AddProduct(product);
-                productService.Save();
+                Product product = _mapper.Map<NewProductResource, Product>(input);
 
-                return CreatedAtAction("Get", new { id = product.Id }, product);
+                product = await _productService.AppendCategoriesToProduct(input.CategoryIds, product);
+
+                if (!_productService.VerifyAllSubmittedCategoriesWhereFound(product, input.CategoryIds))
+                {
+                    return BadRequest("One or more invalid CategoryIds");
+                }
+
+                await _productService.AddProduct(product);
+                await _productService.Save();
+
+                return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
             }
-            catch
+            catch(Exception ex)
             {
-                return BadRequest();
+                return StatusCode(500, ex.InnerException.Message);
             }
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            Product product = productService.GetById(id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
             try
             {
-                productService.Delete(product);
-                productService.Save();
+                Product product = await _productService.GetById(id);
+                
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                
+                _productService.Delete(product);
+                await _productService.Save();
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.InnerException.Message);
             }
         }
 
         [NonAction]
         private bool ProductExists(int id)
         {
-            if (productService.GetById(id) != null)
+            if (_productService.GetById(id) != null)
             {
                 return true;
             }

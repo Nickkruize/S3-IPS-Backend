@@ -1,9 +1,9 @@
 ﻿using DAL.ContextModels;
 using Repositories.Interfaces;
 using Services.Interfaces;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Services
 {
@@ -18,29 +18,24 @@ namespace Services
             this.categoryRepo = categoryRepo;
         }
 
-        public IEnumerable<Product> GetAll()
+        public async Task<IEnumerable<Product>> GetAllWithCategories()
         {
-            return productRepo.FindAll();
+            return await productRepo.FindAllWithProductCategories();
         }
 
-        public IEnumerable<Product> GetAllWithCategories()
+        public async Task<Product> GetById(int id)
         {
-            return productRepo.FindAllWithProductCategories();
+            return await productRepo.GetById(id);
         }
 
-        public Product GetById(int id)
+        public async Task<Product> GetByIdWithCategories(int id)
         {
-            return productRepo.GetById(id);
+            return await productRepo.FindByIdWithCategoires(id);
         }
 
-        public Product GetByIdWithCategories(int id)
+        public async Task Update(Product product, int categoryId)
         {
-            return productRepo.FindByIdWithCategoires(id);
-        }
-
-        public void Update(Product product, int categoryId)
-        {
-            Category category = categoryRepo.GetById(categoryId);
+            Category category = await categoryRepo.GetById(categoryId);
             List<Category> categories = new List<Category>
             {
                 category
@@ -49,18 +44,34 @@ namespace Services
             productRepo.Update(product);
         }
 
-        public void Save()
+        public async Task Save()
         {
-            productRepo.Save();
+            await productRepo.Save();
         }
         public void Delete(Product product)
         {
             productRepo.Delete(product);
         }
 
-        public int AddProduct(Product product)
+        public async Task<Product> AddProduct(Product product)
         {
-            return productRepo.AddProduct(product);
+            return await productRepo.Create(product);
+        }
+
+        public async Task<Product> AppendCategoriesToProduct(List<int> ids, Product product)
+        {
+            product.Categories = await categoryRepo.FindByCondition(e => ids.Contains(e.Id)) as List<Category>;
+            return product;
+        }
+
+        public bool VerifyAllSubmittedCategoriesWhereFound(Product product, List<int> categoryIds)
+        {
+            if (product.Categories.Count() != categoryIds.Count())
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

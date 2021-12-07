@@ -1,7 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -9,13 +7,13 @@ namespace Repositories.Interfaces
 {
     public interface IGenericRepository<T>
     {
-        IEnumerable<T> FindAll();
-        IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression);
-        T GetById(int id);
-        T Create(T entity);
+        Task<IEnumerable<T>> FindAll();
+        Task<IEnumerable<T>> FindByCondition(Expression<Func<T, bool>> expression);
+        Task<T> GetById(int id);
+        Task<T> Create(T entity);
         void Update(T entity);
         void Delete(T entity);
-        void Save();
+        Task Save();
         void Dispose();
     }
 }

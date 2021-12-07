@@ -1,10 +1,6 @@
 ﻿using DAL;
 using DAL.ContextModels;
 using Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Repositories.Repositories
 {
@@ -17,9 +13,9 @@ namespace Repositories.Repositories
             this.context = context;
         }
 
-        public User FindByEmail(string email)
-        {
-            return context.Users.FirstOrDefault(e => e.Email == email);
-        }
+        //public User FindByEmail(string email)
+        //{
+        //    return context.Users.FirstOrDefault(e => e.Email == email);
+        //}
     }
 }
