@@ -36,5 +36,10 @@ namespace S3_webshop.Controllers
             })
             .ToArray();
         }
+
+        public int Testfunction(int value)
+        {
+            return value * 2;
+        }
     }
 }

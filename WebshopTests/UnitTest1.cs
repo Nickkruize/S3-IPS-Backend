@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using S3_webshop.Controllers;
 
 namespace WebshopTests
 {
@@ -27,6 +28,15 @@ namespace WebshopTests
             int id = 20;
 
             Assert.AreNotEqual(25, id);
+        }
+
+        [TestMethod]
+        public void TestMethod4()
+        {
+            WeatherForecastController controller = new WeatherForecastController();
+
+            int result = controller.Testfunction(10);
+            Assert.AreEqual(20, result);
         }
     }
 }
