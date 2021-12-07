@@ -150,7 +150,7 @@ namespace S3_webshop
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app)
         {
-            UpdateDatabase(app, Environment);
+            UpdateDatabase(app, Environment).Wait();
 
             if (Environment.IsDevelopment())
             {

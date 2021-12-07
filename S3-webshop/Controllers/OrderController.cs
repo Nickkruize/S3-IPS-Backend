@@ -20,14 +20,12 @@ namespace S3_webshop.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderController : ControllerBase
     {
-        private readonly IOrderRepo _orderRepository;
         private readonly IOrderService _orderService;
         private readonly WebshopContext _context;
         private readonly IMapper _mapper;
 
-        public OrderController(IOrderRepo orderRepository, WebshopContext context, IMapper mapper, IOrderService orderService)
+        public OrderController(WebshopContext context, IMapper mapper, IOrderService orderService)
         {
-            _orderRepository = orderRepository;
             _orderService = orderService;
             _context = context;
             _mapper = mapper;
