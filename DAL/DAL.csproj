@@ -13,6 +13,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.10" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+
+    <SonarQubeSetting Include="sonar.coverage.exclusions">
+      <Value>**/Migrations</Value>
+    </SonarQubeSetting>
   </ItemGroup>
 
 </Project>
