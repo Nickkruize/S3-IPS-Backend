@@ -23,5 +23,17 @@ namespace WebshopTests
             }
             return databaseContext;
         }
+
+        public WebshopContext SqlLiteInMemoryContext()
+        {
+            var options = new DbContextOptionsBuilder<WebshopContext>()
+                .UseSqlite("DataSource=:memory:")
+                .Options;
+
+            var context = new WebshopContext(options);
+            context.Database.OpenConnection();
+            context.Database.EnsureCreated();
+            return context;
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace S3_webshop.Controllers
             try
             {
                 IEnumerable<Product> products = await _productService.GetAllWithCategories();
-                return _mapper.Map<List<Product>, List<ProductResource>>(products.ToList());
+                return Ok(_mapper.Map<List<Product>, List<ProductResource>>(products.ToList()));
             }
             catch(Exception ex)
             {

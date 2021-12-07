@@ -17,6 +17,10 @@
     <SonarQubeSetting Include="sonar.cpd.exclusions">
       <Value>**</Value>
     </SonarQubeSetting>
+
+    <SonarQubeSetting Include="sonar.coverage.exclusions">
+      <Value>**</Value>
+    </SonarQubeSetting>
   </ItemGroup>
 
 </Project>
