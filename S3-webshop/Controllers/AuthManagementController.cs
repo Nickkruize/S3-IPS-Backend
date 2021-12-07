@@ -14,16 +14,13 @@ namespace S3_webshop.Controllers
     public class AuthManagementController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtService _jwtService;
         private readonly IUserService _userService;
 
-        public AuthManagementController(UserManager<IdentityUser> userManager, IJwtService jwtService, RoleManager<IdentityRole> roleManager,
-            IUserService userService)
+        public AuthManagementController(UserManager<IdentityUser> userManager, IJwtService jwtService, IUserService userService)
         {
             _userManager = userManager;
             _jwtService = jwtService;
-            _roleManager = roleManager;
             _userService = userService;
         }
 

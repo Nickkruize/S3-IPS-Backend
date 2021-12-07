@@ -66,7 +66,7 @@ namespace Services
 
         public bool VerifyAllSubmittedCategoriesWhereFound(Product product, List<int> categoryIds)
         {
-            if (product.Categories.Count() != categoryIds.Count())
+            if (product.Categories.Count != categoryIds.Count)
             {
                 return false;
             }

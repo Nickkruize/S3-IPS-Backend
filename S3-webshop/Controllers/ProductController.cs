@@ -21,11 +21,9 @@ namespace S3_webshop.Controllers
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
 
-        private readonly ILogger<ProductController> _logger;
 
-        public ProductController(ILogger<ProductController> logger, IProductService productService, IMapper mapper)
+        public ProductController(IProductService productService, IMapper mapper)
         {
-            _logger = logger;
             _productService = productService;
             _mapper = mapper;
         }

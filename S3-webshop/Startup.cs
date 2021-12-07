@@ -78,18 +78,6 @@ namespace S3_webshop
                     };
                 });
 
-            //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            //    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-            //    {
-            //        options.Cookie.Name = "UserLoginCookie";
-            //        options.ExpireTimeSpan = new TimeSpan(1, 0, 0); // Expires in 1 hour
-            //        options.Events.OnRedirectToLogin = (context) =>
-            //        {
-            //            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            //            return Task.CompletedTask;
-            //        };
-            //        options.Cookie.HttpOnly = true;
-
                     services.AddIdentityCore<IdentityUser>(options =>
                     options.SignIn.RequireConfirmedAccount = true)
                     .AddRoles<IdentityRole>()
@@ -97,10 +85,6 @@ namespace S3_webshop
 
                     services.AddSignalR();
 
-                    //services.AddAuthorization(options =>
-                    //{
-                    //    options.AddPolicy("MustHaveId", policy => policy.RequireClaim("Id", "5fb37a20-76ab-402e-bb68-aaf32bdc2eaa"));
-                    //});
 
                     if (Environment.IsDevelopment())
                     {
@@ -191,7 +175,7 @@ namespace S3_webshop
             });
         }
 
-        private async static void UpdateDatabase(IApplicationBuilder app, IWebHostEnvironment env)
+        private async Task UpdateDatabase(IApplicationBuilder app, IWebHostEnvironment env)
         {
             var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
             WebshopContext context = serviceScope.ServiceProvider.GetService<WebshopContext>();
@@ -226,7 +210,6 @@ namespace S3_webshop
                 {
                     using var Scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
                     UserManager<IdentityUser> userManager = Scope.ServiceProvider.GetService<UserManager<IdentityUser>>();
-                    RoleManager<IdentityRole> roleManager = Scope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
                     List<User> Users = Seed.SeedUser();
                     foreach (User user in Users)
                     {

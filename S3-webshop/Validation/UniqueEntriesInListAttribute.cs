@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace S3_webshop.Validation
 {
-    public class UniqueEntriesInList : ValidationAttribute
+    public class UniqueEntriesInListAttribute : ValidationAttribute
     {
         public override bool IsValid(object value)
         {
@@ -13,7 +13,7 @@ namespace S3_webshop.Validation
             IEnumerable<int> duplicates = categoryIds.GroupBy(x => x)
                                             .SelectMany(g => g.Skip(1));
 
-            if (duplicates.Count() > 0)
+            if (duplicates.Any())
             {
                 return false;
             }

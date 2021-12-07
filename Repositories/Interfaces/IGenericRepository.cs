@@ -14,6 +14,5 @@ namespace Repositories.Interfaces
         void Update(T entity);
         void Delete(T entity);
         Task Save();
-        void Dispose();
     }
 }

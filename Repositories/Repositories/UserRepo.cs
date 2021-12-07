@@ -12,10 +12,5 @@ namespace Repositories.Repositories
         {
             this.context = context;
         }
-
-        //public User FindByEmail(string email)
-        //{
-        //    return context.Users.FirstOrDefault(e => e.Email == email);
-        //}
     }
 }

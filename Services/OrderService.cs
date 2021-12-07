@@ -9,11 +9,9 @@ namespace Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepo _orderRepo;
-        private readonly IOrderItemRepo _ordeItemRepo;
 
-        public OrderService(IOrderItemRepo orderItemRepo, IOrderRepo orderRepo)
+        public OrderService( IOrderRepo orderRepo)
         {
-            _ordeItemRepo = orderItemRepo;
             _orderRepo = orderRepo;
         }
 

@@ -59,10 +59,5 @@ namespace Repositories.Repositories
         {
             await this.RepositoryContext.SaveChangesAsync();
         }
-
-        public void Dispose()
-        {
-            this.RepositoryContext.DisposeAsync();
-        }
     }
 }

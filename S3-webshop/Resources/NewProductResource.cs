@@ -12,7 +12,7 @@ namespace S3_webshop.Resources
         public string Description { get; set; }
         [Required]
         public double Price { get; set; }
-        [UniqueEntriesInList(ErrorMessage = "CategoryId can't be used multiple times")]
+        [UniqueEntriesInListAttribute(ErrorMessage = "CategoryId can't be used multiple times")]
         public List<int> CategoryIds { get; set; }
     }
 }

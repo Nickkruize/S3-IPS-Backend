@@ -37,7 +37,7 @@ namespace DAL.Helpers
             List<Category> result = new List<Category>();
             foreach (Category category in categories)
             {
-                if (categories.Count(c => c.Name == category.Name) == 1 || result.Count(e => e.Name == category.Name) == 0)
+                if (categories.Count(c => c.Name == category.Name) == 1 || !result.Any(e => e.Name == category.Name))
                 {
                     result.Add(category);
                 }
@@ -52,7 +52,7 @@ namespace DAL.Helpers
             List<Category> categoriesResult = new List<Category>();
             for (int i = 1; i <= amount; i++)
             {
-                int index = random.Next(categories.Count());
+                int index = random.Next(categories.Count);
                 categoriesResult.Add(categories[index]);
             }
 
@@ -63,7 +63,7 @@ namespace DAL.Helpers
         {
             Random random = new Random();
 
-            int index = random.Next(products.Count());
+            int index = random.Next(products.Count);
             Product product = products[index];
 
             return product;
