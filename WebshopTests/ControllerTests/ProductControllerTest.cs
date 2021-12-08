@@ -33,14 +33,13 @@ namespace WebshopTests.ControllerTests
         }
 
         [TestMethod]
-        public async Task ItReturnAListOfProducts()
+        public async Task ItReturnAListOfProducts2()
         {
-            ProductRepo productRepo = new ProductRepo(SqlLiteInMemoryContext());
-            CategoryRepo categoryRepo = new CategoryRepo(SqlLiteInMemoryContext());
-            ProductService service = new ProductService(productRepo, categoryRepo);
+            TestProductService service = new TestProductService();
             ProductController controller = new ProductController(service, _mapper);
             Product product = new Product
             {
+                Id = 1,
                 Description = "coole beschrijving",
                 ImgUrl = "random image",
                 Name = "testproduct",
@@ -48,15 +47,12 @@ namespace WebshopTests.ControllerTests
             };
             Product product2 = new Product
             {
+                Id = 2,
                 Description = "nieuwe beschrijving",
                 ImgUrl = "random image",
                 Name = "testproduct2",
                 Price = 99.99
             };
-
-            await productRepo.Create(product);
-            await productRepo.Create(product2);
-            await productRepo.Save();
 
             List<Product> Products = new List<Product>
             {
