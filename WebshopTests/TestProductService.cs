@@ -9,7 +9,7 @@ namespace WebshopTests
 {
     public class TestProductService : IProductService
     {
-        public Task<IEnumerable<Product>> GetAllWithCategories()
+        private List<Product> GetProducts()
         {
             List<Product> Products = new List<Product>();
             Product product1 = new Product
@@ -30,17 +30,24 @@ namespace WebshopTests
             };
             Products.Add(product1);
             Products.Add(product2);
-            return Task.Run(() => Products as IEnumerable<Product>);
+            return Products;
+        }
+
+        public Task<IEnumerable<Product>> GetAllWithCategories()
+        {
+            return Task.Run(() => this.GetProducts() as IEnumerable<Product>);
 
         }
         public Task<Product> GetById(int id)
         {
-            throw new NotImplementedException();
+            Product result = this.GetProducts().Find(e => e.Id == id);
+            return Task.Run(() => result);
         }
 
         public Task<Product> GetByIdWithCategories(int id)
         {
-            throw new NotImplementedException();
+            Product result = this.GetProducts().Find(e => e.Id == id);
+            return Task.Run(() => result);
         }
 
         public Task Update(Product product, int categoryId)

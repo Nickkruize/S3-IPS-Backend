@@ -15,7 +15,7 @@ namespace S3_webshop.Controllers
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
-{
+        {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
@@ -35,11 +35,6 @@ namespace S3_webshop.Controllers
                 Summary = Summaries[RandomNumberGenerator.GetInt32(0, Summaries.Length - 1)]
             })
             .ToArray();
-        }
-
-        public int Testfunction(int value)
-        {
-            return value * 2;
         }
     }
 }

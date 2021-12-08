@@ -35,15 +35,6 @@ namespace WebshopTests
         }
 
         [TestMethod]
-        public void TestMethod4()
-        {
-            WeatherForecastController controller = new WeatherForecastController();
-
-            int result = controller.Testfunction(10);
-            Assert.AreEqual(20, result);
-        }
-
-        [TestMethod]
         public void TestWeatherControllerGet()
         {
             WeatherForecastController controller = new WeatherForecastController();
