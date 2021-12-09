@@ -11,7 +11,7 @@ namespace Services.Interfaces
         Task<Product> GetByIdWithCategories(int id);
         Task Update(Product product, int categoryId);
         Task Save();
-        void Delete(Product product);
+        Task Delete(Product product);
         Task<Product> AddProduct(Product product);
         Task<Product> AppendCategoriesToProduct(List<int> ids, Product product);
         bool VerifyAllSubmittedCategoriesWhereFound(Product product, List<int> categoryIds);

@@ -6,13 +6,14 @@ namespace S3_webshop.Resources
 {
     public class NewProductResource
     {
-        [Required]
+        [Required(ErrorMessage = "A product name must be provided")]
         public string Name { get; set; }
-        [Required]
+        [Required(ErrorMessage = "A description of the product must be provided")]
         public string Description { get; set; }
-        [Required]
+        [Required(ErrorMessage = "A price for the product must be provided")]
+        [Range(0.01, 9999.99)]
         public double Price { get; set; }
-        [UniqueEntriesInListAttribute(ErrorMessage = "CategoryId can't be used multiple times")]
+        [UniqueEntriesInListAttribute(ErrorMessage = "a categoryId can't be used multiple times")]
         public List<int> CategoryIds { get; set; }
     }
 }

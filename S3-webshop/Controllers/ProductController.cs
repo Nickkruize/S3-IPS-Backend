@@ -84,7 +84,7 @@ namespace S3_webshop.Controllers
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!ProductExists(id))
+                if (_productService.GetById(id) == null)
                 {
                     return NotFound();
                 }
@@ -98,33 +98,33 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(NewProductResource input)
+        public async Task<IActionResult> Post([FromBody]NewProductResource input)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return BadRequest("Invalid information");
-            }
-
-            try
-            {
-                Product product = _mapper.Map<NewProductResource, Product>(input);
-
-                product = await _productService.AppendCategoriesToProduct(input.CategoryIds, product);
-
-                if (!_productService.VerifyAllSubmittedCategoriesWhereFound(product, input.CategoryIds))
+                try
                 {
-                    return BadRequest("One or more invalid CategoryIds");
+                    Product product = _mapper.Map<NewProductResource, Product>(input);
+
+                    product = await _productService.AppendCategoriesToProduct(input.CategoryIds, product);
+
+                    if (!_productService.VerifyAllSubmittedCategoriesWhereFound(product, input.CategoryIds))
+                    {
+                        return BadRequest("One or more invalid CategoryIds");
+                    }
+
+                    await _productService.AddProduct(product);
+                    await _productService.Save();
+
+                    return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
                 }
-
-                await _productService.AddProduct(product);
-                await _productService.Save();
-
-                return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
             }
-            catch(Exception ex)
-            {
-                return StatusCode(500, ex.InnerException.Message);
-            }
+
+            return BadRequest("Invalid information");
         }
 
         [HttpDelete("{id}")]
@@ -136,28 +136,16 @@ namespace S3_webshop.Controllers
                 
                 if (product == null)
                 {
-                    return NotFound();
+                    return NotFound("Product was not found");
                 }
                 
-                _productService.Delete(product);
-                await _productService.Save();
+                await _productService.Delete(product);
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
-        }
-
-        [NonAction]
-        private bool ProductExists(int id)
-        {
-            if (_productService.GetById(id) != null)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }
