@@ -4,11 +4,14 @@ using DeepEqual.Syntax;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Repositories.Repositories;
 using S3_webshop.Configuration;
 using S3_webshop.Controllers;
 using S3_webshop.Resources;
 using Services;
+using Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -33,7 +36,7 @@ namespace WebshopTests.ControllerTests
         }
 
         [TestMethod]
-        public async Task ItReturnAListOfProducts2()
+        public async Task ItReturnAListOfProducts()
         {
             TestProductService service = new TestProductService();
             ProductController controller = new ProductController(service, _mapper);
@@ -71,6 +74,22 @@ namespace WebshopTests.ControllerTests
         }
 
         [TestMethod]
+        public async Task GetReturnsA500CodeWithAnErrorMessage()
+        {
+            var service = new Mock<IProductService>();
+            service.Setup(arg => arg.GetAllWithCategories())
+                .ThrowsAsync(new InvalidOperationException());
+            ProductController controller = new ProductController(service.Object, _mapper);
+
+            var actionResult = await controller.Get();
+            Assert.IsNull(actionResult.Value);
+            Assert.IsInstanceOfType(actionResult.Result, typeof(ObjectResult));
+            var result = actionResult.Result as ObjectResult;
+            Assert.AreEqual(500, result.StatusCode);
+            Assert.IsNotNull(result.Value);
+        }
+
+        [TestMethod]
         public async Task ItReturnsOkResultWithCorrectDataForGetId()
         {
             TestProductService service = new TestProductService();
@@ -98,11 +117,27 @@ namespace WebshopTests.ControllerTests
         [TestMethod]
         public async Task ItReturnsNotFoundForNonExistingId()
         {
-            TestProductService service = new TestProductService();
-            ProductController controller = new ProductController(service, _mapper);
+            var service = new Mock<TestProductService>();
+            ProductController controller = new ProductController(service.Object, _mapper);
 
             var controllerResult = await controller.Get(3);
             Assert.IsInstanceOfType(controllerResult.Result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task GetByIdReturnsA500CodeWithAnErrorMessage()
+        {
+            var service = new Mock<IProductService>();
+            service.Setup(arg => arg.GetByIdWithCategories(It.IsAny<int>()))
+                .ThrowsAsync(new InvalidOperationException());
+            ProductController controller = new ProductController(service.Object, _mapper);
+
+            var actionResult = await controller.Get(1);
+            Assert.IsNull(actionResult.Value);
+            Assert.IsInstanceOfType(actionResult.Result, typeof(ObjectResult));
+            var result = actionResult.Result as ObjectResult;
+            Assert.AreEqual(500, result.StatusCode);
+            Assert.IsNotNull(result.Value);
         }
 
     }

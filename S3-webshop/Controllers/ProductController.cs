@@ -38,7 +38,7 @@ namespace S3_webshop.Controllers
             }
             catch(Exception ex)
             {
-                return StatusCode(500, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
 
         }
@@ -48,18 +48,17 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                if (await _productService.GetById(id) == null)
+                Product product = await _productService.GetByIdWithCategories(id);
+                if (product == null)
                 {
                     return NotFound();
                 }
-
-                Product product = await _productService.GetByIdWithCategories(id);
                 ProductWithCategoriesResource result = _mapper.Map<Product, ProductWithCategoriesResource>(product);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
