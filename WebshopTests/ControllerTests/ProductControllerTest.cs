@@ -13,6 +13,7 @@ using Services;
 using Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace WebshopTests.ControllerTests
@@ -35,11 +36,8 @@ namespace WebshopTests.ControllerTests
             }
         }
 
-        [TestMethod]
-        public async Task ItReturnAListOfProducts()
+        private List<Product> GetProducts()
         {
-            TestProductService service = new TestProductService();
-            ProductController controller = new ProductController(service, _mapper);
             Product product = new Product
             {
                 Id = 1,
@@ -62,10 +60,18 @@ namespace WebshopTests.ControllerTests
                 product, product2
             };
 
-            List<ProductWithCategoryResource> productResources = _mapper.Map<List<Product>, List<ProductWithCategoryResource>>(Products);
+            return Products;
+        }
 
-            var result = await service.GetAllWithCategories();
-            Assert.IsTrue(Products.IsDeepEqual(result));
+        [TestMethod]
+        public async Task ItReturnAListOfProducts()
+        {
+             var service = new Mock<IProductService>();
+            service.Setup(arg => arg.GetAllWithCategories())
+                .ReturnsAsync(GetProducts());
+            ProductController controller = new ProductController(service.Object, _mapper);
+
+            List<ProductWithCategoryResource> productResources = _mapper.Map<List<Product>, List<ProductWithCategoryResource>>(GetProducts()); ;
 
             var controllerResult = await controller.Get();
             Assert.IsInstanceOfType(controllerResult.Result, typeof(OkObjectResult));
@@ -82,9 +88,8 @@ namespace WebshopTests.ControllerTests
             ProductController controller = new ProductController(service.Object, _mapper);
 
             var actionResult = await controller.Get();
-            Assert.IsNull(actionResult.Value);
-            Assert.IsInstanceOfType(actionResult.Result, typeof(ObjectResult));
             var result = actionResult.Result as ObjectResult;
+            Assert.IsInstanceOfType(actionResult.Result, typeof(ObjectResult));
             Assert.AreEqual(500, result.StatusCode);
             Assert.IsNotNull(result.Value);
         }
@@ -92,32 +97,29 @@ namespace WebshopTests.ControllerTests
         [TestMethod]
         public async Task ItReturnsOkResultWithCorrectDataForGetId()
         {
-            TestProductService service = new TestProductService();
-            ProductController controller = new ProductController(service, _mapper);
-            Product product = new Product
-            {
-                Id = 1,
-                Description = "coole beschrijving",
-                ImgUrl = "random image",
-                Name = "testproduct",
-                Price = 9.99
-            };
+            List<Product> products = GetProducts();
+            var service = new Mock<IProductService>();
+            service.Setup(arg => arg.GetByIdWithCategories(It.IsAny<int>()))
+                .ReturnsAsync((int i) => products.Single(c => c.Id == i));
+            ProductController controller = new ProductController(service.Object, _mapper);
 
+            ProductWithCategoriesResource product1Resource = _mapper.Map<Product, ProductWithCategoriesResource>(products[0]);
+            ProductWithCategoriesResource product2Resource = _mapper.Map<Product, ProductWithCategoriesResource>(products[1]);
 
-            ProductWithCategoriesResource productResource = _mapper.Map<Product, ProductWithCategoriesResource>(product);
-            var result = await service.GetById(1);
-            Assert.IsTrue(product.IsDeepEqual(result));
-
-            var controllerResult = await controller.Get(1);
-            Assert.IsInstanceOfType(controllerResult.Result, typeof(OkObjectResult));
-            var actual = (controllerResult.Result as OkObjectResult).Value as ProductWithCategoriesResource;
-            Assert.IsTrue(productResource.IsDeepEqual(actual));
+            var controllerResult1 = await controller.Get(1);
+            var controllerResult2 = await controller.Get(2);
+            Assert.IsInstanceOfType(controllerResult1.Result, typeof(OkObjectResult));
+            Assert.IsInstanceOfType(controllerResult2.Result, typeof(OkObjectResult));
+            var actual = (controllerResult1.Result as OkObjectResult).Value as ProductWithCategoriesResource;
+            var actual2 = (controllerResult2.Result as OkObjectResult).Value as ProductWithCategoriesResource;
+            Assert.IsTrue(product1Resource.IsDeepEqual(actual));
+            Assert.IsTrue(product2Resource.IsDeepEqual(actual2));
         }
 
         [TestMethod]
         public async Task ItReturnsNotFoundForNonExistingId()
         {
-            var service = new Mock<TestProductService>();
+            var service = new Mock<IProductService>();
             ProductController controller = new ProductController(service.Object, _mapper);
 
             var controllerResult = await controller.Get(3);
@@ -139,6 +141,5 @@ namespace WebshopTests.ControllerTests
             Assert.AreEqual(500, result.StatusCode);
             Assert.IsNotNull(result.Value);
         }
-
     }
 }
