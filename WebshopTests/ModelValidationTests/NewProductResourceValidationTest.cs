@@ -94,7 +94,7 @@ namespace WebshopTests.ModelValidationTests
 
             Assert.IsFalse(isModelStateValid);
             Assert.AreEqual(1, results.Count);
-            Assert.AreEqual("The field Price must be between 0,01 and 9999,99.", results[0].ErrorMessage);
+            Assert.AreEqual("Price must be between 0.01 and 9999.99", results[0].ErrorMessage);
         }
 
         [TestMethod]
@@ -137,7 +137,7 @@ namespace WebshopTests.ModelValidationTests
             Assert.AreEqual(4, results.Count);
             Assert.AreEqual("A product name must be provided", results[0].ErrorMessage);
             Assert.AreEqual("A description of the product must be provided", results[1].ErrorMessage);
-            Assert.AreEqual("The field Price must be between 0,01 and 9999,99.", results[2].ErrorMessage);
+            Assert.AreEqual("Price must be between 0.01 and 9999.99", results[2].ErrorMessage);
             Assert.AreEqual("a categoryId can't be used multiple times", results[3].ErrorMessage);
         }
     }

@@ -58,12 +58,10 @@ namespace WebshopTests.ControllerTests
                 Price = 99.99
             };
 
-            List<Product> Products = new List<Product>
+            return new List<Product>
             {
                 product, product2
             };
-
-            return Products;
         }
 
         private List<Category> GetCategories()
