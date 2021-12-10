@@ -29,12 +29,12 @@ namespace S3_webshop.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductWithCategoryResource>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductWithCategoriesResource>>> Get()
         {
             try
             {
                 IEnumerable<Product> products = await _productService.GetAllWithCategories();
-                return Ok(_mapper.Map<List<Product>, List<ProductWithCategoryResource>>(products.ToList()));
+                return Ok(_mapper.Map<List<Product>, List<ProductWithCategoriesResource>>(products.ToList()));
             }
             catch(Exception ex)
             {
@@ -63,30 +63,29 @@ namespace S3_webshop.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, ProductWithCategoryResource product, int categoryId)
+        public async Task<IActionResult> Put(int id, ProductWithCategoriesResource product, int categoryId)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest("Invalid Information");
             }
 
-            Product updatedProduct = _mapper.Map<ProductWithCategoryResource, Product>(product);
+            Product updatedProduct = _mapper.Map<ProductWithCategoriesResource, Product>(product);
 
             if (id != product.Id)
             {
-                return BadRequest("submitted Id doesn't match productId");
+                return BadRequest("submitted Id doesn't match the productId");
             }
 
             try
             {
                 await _productService.Update(updatedProduct, categoryId);
-                await _productService.Save();
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (_productService.GetById(id) == null)
+                if (await _productService.GetById(id) == null)
                 {
-                    return NotFound();
+                    return NotFound("This product doesn't exist");
                 }
                 else
                 {
@@ -114,7 +113,6 @@ namespace S3_webshop.Controllers
                     }
 
                     await _productService.AddProduct(product);
-                    await _productService.Save();
 
                     return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
                 }

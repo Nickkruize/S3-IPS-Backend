@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using S3_webshop.Resources;
+using S3_webshop.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -139,6 +140,36 @@ namespace WebshopTests.ModelValidationTests
             Assert.AreEqual("A description of the product must be provided", results[1].ErrorMessage);
             Assert.AreEqual("Price must be between 0.01 and 9999.99", results[2].ErrorMessage);
             Assert.AreEqual("a categoryId can't be used multiple times", results[3].ErrorMessage);
+        }
+
+        [TestMethod]
+        public void UniqueEntriesInListReturnsTrueIfCorrectt()
+        {
+            List<int> ints = new List<int>
+            {
+                1,2,3
+            };
+
+            UniqueEntriesInListAttribute attribute = new UniqueEntriesInListAttribute();
+
+            bool result = attribute.IsValid(ints);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void UniqueEntriesInListReturnsFalseIfNot()
+        {
+            List<int> ints = new List<int>
+            {
+                1,2,3,3
+            };
+
+            UniqueEntriesInListAttribute attribute = new UniqueEntriesInListAttribute();
+
+            bool result = attribute.IsValid(ints);
+
+            Assert.IsFalse(result);
         }
     }
 }

@@ -42,21 +42,21 @@ namespace Services
             };
             product.Categories = categories;
             productRepo.Update(product);
+            await productRepo.Save();
         }
 
-        public async Task Save()
+        public async Task<Product> Delete(Product product)
         {
+            await productRepo.Delete(product);
             await productRepo.Save();
-        }
-        public async Task Delete(Product product)
-        {
-            productRepo.Delete(product);
-            await productRepo.Save();
+            return product;
         }
 
         public async Task<Product> AddProduct(Product product)
         {
-            return await productRepo.Create(product);
+            Product result = await productRepo.Create(product);
+            await productRepo.Save();
+            return result;
         }
 
         public async Task<Product> AppendCategoriesToProduct(List<int> ids, Product product)

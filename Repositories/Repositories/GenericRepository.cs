@@ -45,14 +45,10 @@ namespace Repositories.Repositories
             this.RepositoryContext.Set<T>().Update(entity);
         }
 
-        public void Delete(T entity)
+        public async Task<T> Delete(T entity)
         {
             this.RepositoryContext.Set<T>().Remove(entity);
-        }
-
-        public void Delete(int id)
-        {
-            this.RepositoryContext.Remove(RepositoryContext.Set<T>().Find(id));
+            return entity;
         }
 
         public async Task Save()
