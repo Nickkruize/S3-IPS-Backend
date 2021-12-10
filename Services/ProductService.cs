@@ -47,7 +47,7 @@ namespace Services
 
         public async Task<Product> Delete(Product product)
         {
-            await productRepo.Delete(product);
+            productRepo.Delete(product);
             await productRepo.Save();
             return product;
         }

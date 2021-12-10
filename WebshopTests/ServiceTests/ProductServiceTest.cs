@@ -388,7 +388,7 @@ namespace WebshopTests.ServiceTests
         }
 
         [TestMethod]
-        public async Task VerifyAllSubmittedCategoriesWhereFoundSucces()
+        public void VerifyAllSubmittedCategoriesWhereFoundSucces()
         {
             List<Product> products = GetProducts();
             var testProductRepository = new Mock<IProductRepo>();
@@ -405,7 +405,7 @@ namespace WebshopTests.ServiceTests
         }
 
         [TestMethod]
-        public async Task VerifyAllSubmittedCategoriesNotFoundReturnsFalse()
+        public void VerifyAllSubmittedCategoriesNotFoundReturnsFalse()
         {
             List<Product> products = GetProducts();
             var testProductRepository = new Mock<IProductRepo>();
