@@ -13,13 +13,11 @@ namespace S3_webshop.Controllers
     [ApiController]
     public class AuthManagementController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly IJwtService _jwtService;
         private readonly IUserService _userService;
 
-        public AuthManagementController(UserManager<IdentityUser> userManager, IJwtService jwtService, IUserService userService)
+        public AuthManagementController(IJwtService jwtService, IUserService userService)
         {
-            _userManager = userManager;
             _jwtService = jwtService;
             _userService = userService;
         }
@@ -30,7 +28,7 @@ namespace S3_webshop.Controllers
         {
             if (ModelState.IsValid)
             {
-                var existingUser = await _userManager.FindByEmailAsync(user.Email);
+                var existingUser = await _userService.GetByEmail(user.Email);
 
                 if (existingUser != null)
                 {
@@ -50,10 +48,10 @@ namespace S3_webshop.Controllers
                     UserName = user.Username,
                 };
 
-                IdentityResult isCreated = await _userManager.CreateAsync(newUser, user.Password);
+                IdentityResult isCreated = await _userService.CheckCreation(newUser, user.Password);
                 if (isCreated.Succeeded)
                 {
-                    IdentityResult roleAdded = await _userManager.AddToRoleAsync(newUser, "User");
+                    IdentityResult roleAdded = await _userService.AddRoleToNewUser(newUser);
                     if (roleAdded.Succeeded)
                     {
                         return Ok(new RegistrationResponseDto()
@@ -96,7 +94,7 @@ namespace S3_webshop.Controllers
         {
             if (ModelState.IsValid)
             {
-                IdentityUser existingUser = await _userManager.FindByEmailAsync(user.Email);
+                IdentityUser existingUser = await _userService.GetByEmail(user.Email);
 
                 if (existingUser == null)
                 {
@@ -110,7 +108,7 @@ namespace S3_webshop.Controllers
                     });
                 }
 
-                bool isCorrect = await _userManager.CheckPasswordAsync(existingUser, user.Password);
+                bool isCorrect = await _userService.CheckPassword(existingUser, user.Password);
 
                 if (!isCorrect)
                 {

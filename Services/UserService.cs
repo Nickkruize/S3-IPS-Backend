@@ -20,14 +20,34 @@ namespace Services
             _roleManager = roleManager;
         }
 
-        public async Task<IEnumerable<User>> GetAll()
+        public IEnumerable<IdentityUser> GetAll()
         {
-            return await _userRepo.FindAll();
+            return _userManager.Users;
         }
 
         public async Task<User> GetById(int id)
         {
             return await _userRepo.GetById(id);
+        }
+
+        public async Task<IdentityUser> GetById(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        public async Task<IdentityUser> GetByName(string name)
+        {
+            return await _userManager.FindByNameAsync(name);
+        }
+
+        public async Task<IdentityUser> GetByEmail(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<IdentityResult> Delete(IdentityUser user)
+        {
+            return await _userManager.DeleteAsync(user);
         }
 
         public async Task Save()
@@ -46,6 +66,21 @@ namespace Services
             }
 
             return Roles;
+        }
+
+        public async Task<bool> CheckPassword(IdentityUser user, string password)
+        {
+            return await _userManager.CheckPasswordAsync(user, password);
+        }
+
+        public async Task<IdentityResult> CheckCreation(IdentityUser user, string password)
+        {
+            return await _userManager.CreateAsync(user, password);
+        }
+
+        public async Task<IdentityResult> AddRoleToNewUser(IdentityUser user)
+        {
+            return await _userManager.AddToRoleAsync(user, "User");
         }
     }
 }

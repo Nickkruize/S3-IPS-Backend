@@ -7,6 +7,6 @@ namespace S3_webshop.Resources
         public int Id { get; set; }
         public int Quantity { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ProductWithCategoryResource Product { get; set; }
+        public ProductWithCategoriesResource Product { get; set; }
     }
 }

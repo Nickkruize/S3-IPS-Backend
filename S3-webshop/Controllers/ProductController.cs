@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,26 +21,28 @@ namespace S3_webshop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
 
 
-        public ProductController(IProductService productService, IMapper mapper)
+        public ProductController(IProductService productService, IMapper mapper, ICategoryService categoryService)
         {
             _productService = productService;
+            _categoryService = categoryService;
             _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductWithCategoryResource>>> Get()
+        public async Task<ActionResult<IEnumerable<ProductWithCategoriesResource>>> Get()
         {
             try
             {
                 IEnumerable<Product> products = await _productService.GetAllWithCategories();
-                return Ok(_mapper.Map<List<Product>, List<ProductWithCategoryResource>>(products.ToList()));
+                return Ok(_mapper.Map<List<Product>, List<ProductWithCategoriesResource>>(products.ToList()));
             }
             catch(Exception ex)
             {
-                return StatusCode(500, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
 
         }
@@ -48,86 +52,99 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                if (await _productService.GetById(id) == null)
+                Product product = await _productService.GetByIdWithCategories(id);
+                if (product == null)
                 {
                     return NotFound();
                 }
-
-                Product product = await _productService.GetByIdWithCategories(id);
                 ProductWithCategoriesResource result = _mapper.Map<Product, ProductWithCategoriesResource>(product);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, ProductWithCategoryResource product, int categoryId)
+        public async Task<IActionResult> Put(int id, ProductWithCategoriesResource product, int categoryId)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest("Invalid Information");
             }
 
-            Product updatedProduct = _mapper.Map<ProductWithCategoryResource, Product>(product);
+            Product currentProduct = await _productService.GetByIdWithCategories(id);
+            Category category = await _categoryService.GetById(categoryId);
 
-            if (id != product.Id)
+            if (currentProduct == null)
             {
-                return BadRequest("submitted Id doesn't match productId");
+                return BadRequest("submitted Id doesn't match the productId");
+            }
+
+            if (category == null)
+            {
+                return BadRequest("This category does not exist");
+            }
+
+            if (currentProduct.Categories.Contains(category))
+            {
+                return BadRequest("This product is already assigned to this category");
             }
 
             try
             {
-                await _productService.Update(updatedProduct, categoryId);
-                await _productService.Save();
+                await _productService.Update(currentProduct, categoryId);
+                return CreatedAtAction(nameof(Get), new { id = currentProduct.Id }, currentProduct);
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                if (!ProductExists(id))
+                if (await _productService.GetById(id) == null)
                 {
-                    return NotFound();
+                    return NotFound("This product doesn't exist");
                 }
                 else
                 {
                     return BadRequest(ex.Message);
                 }
             }
-
-            return CreatedAtAction(nameof(Get), new { id = updatedProduct.Id }, updatedProduct);
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Post(NewProductResource input)
+        public async Task<IActionResult> Post([FromBody]NewProductResource input)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return BadRequest("Invalid information");
-            }
-
-            try
-            {
-                Product product = _mapper.Map<NewProductResource, Product>(input);
-
-                product = await _productService.AppendCategoriesToProduct(input.CategoryIds, product);
-
-                if (!_productService.VerifyAllSubmittedCategoriesWhereFound(product, input.CategoryIds))
+                try
                 {
-                    return BadRequest("One or more invalid CategoryIds");
+                    Product product = _mapper.Map<NewProductResource, Product>(input);
+
+                    product = await _productService.AppendCategoriesToProduct(input.CategoryIds, product);
+
+                    if (!_productService.VerifyAllSubmittedCategoriesWhereFound(product, input.CategoryIds))
+                    {
+                        return BadRequest("One or more invalid CategoryIds");
+                    }
+
+                    await _productService.AddProduct(product);
+
+                    return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
                 }
-
-                await _productService.AddProduct(product);
-                await _productService.Save();
-
-                return CreatedAtAction(nameof(Get), new { id = product.Id }, product);
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
             }
-            catch(Exception ex)
-            {
-                return StatusCode(500, ex.InnerException.Message);
-            }
+
+            return BadRequest("Invalid information");
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -137,28 +154,16 @@ namespace S3_webshop.Controllers
                 
                 if (product == null)
                 {
-                    return NotFound();
+                    return NotFound("Product was not found");
                 }
                 
-                _productService.Delete(product);
-                await _productService.Save();
+                await _productService.Delete(product);
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.InnerException.Message);
+                return StatusCode(500, ex.Message);
             }
-        }
-
-        [NonAction]
-        private bool ProductExists(int id)
-        {
-            if (_productService.GetById(id) != null)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 }

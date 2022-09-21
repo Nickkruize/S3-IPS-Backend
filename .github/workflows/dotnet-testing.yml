@@ -2,9 +2,11 @@ name: dotnet testing
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - "**" #matches every branch
   pull_request:
-    branches: [ main ]
+    branches:
+      - "**"
 
 jobs:
   build:

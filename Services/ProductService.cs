@@ -36,26 +36,23 @@ namespace Services
         public async Task Update(Product product, int categoryId)
         {
             Category category = await categoryRepo.GetById(categoryId);
-            List<Category> categories = new List<Category>
-            {
-                category
-            };
-            product.Categories = categories;
+            product.Categories.Add(category);
             productRepo.Update(product);
-        }
-
-        public async Task Save()
-        {
             await productRepo.Save();
         }
-        public void Delete(Product product)
+
+        public async Task<Product> Delete(Product product)
         {
             productRepo.Delete(product);
+            await productRepo.Save();
+            return product;
         }
 
         public async Task<Product> AddProduct(Product product)
         {
-            return await productRepo.Create(product);
+            Product result = await productRepo.Create(product);
+            await productRepo.Save();
+            return result;
         }
 
         public async Task<Product> AppendCategoriesToProduct(List<int> ids, Product product)

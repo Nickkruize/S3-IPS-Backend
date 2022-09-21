@@ -17,7 +17,9 @@ namespace Repositories.Repositories
 
         public async Task<Category> FindByIdWithProducts(int id)
         {
-            return await this._context.Categories.Include(p => p.Products).FirstOrDefaultAsync(e => e.Id == id);
+            return await this._context.Categories
+                .Include(p => p.Products)
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
     }
 }
