@@ -74,11 +74,11 @@ namespace S3_webshop.Controllers
 
         [HttpGet("GetByUser/{userId}")]
         [AllowAnonymous]
-        public async Task<ActionResult<Order>> GetOrderByUser(string userId)
+        public async Task<ActionResult<List<OrdersResource>>> GetOrdersByUser(string userId)
         {
             try
             {
-                var order = await _orderService.GetByUserId(userId);
+                var order = await _orderService.GetOrderByUserId(userId);
 
                 if (order == null)
                 {
@@ -86,6 +86,36 @@ namespace S3_webshop.Controllers
                 }
 
                 OrdersResource result = _mapper.Map<Order, OrdersResource>(order);
+                if (result == null)
+                {
+                    return NotFound("No orders found for this user");
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
+        }
+
+        [HttpGet("GetOrders/{userId}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<List<OrdersResource>>> GetOrders(string userId)
+        {
+            try
+            {
+                var order = await _orderService.GetOrdersByUserId(userId);
+
+                if (order == null)
+                {
+                    return NotFound();
+                }
+
+                List<OrdersResource> result = _mapper.Map<List<Order>, List<OrdersResource>>(order);
+                if (result.Count == 0)
+                {
+                    return NotFound("No orders found for this user");
+                }
                 return Ok(result);
             }
             catch (Exception ex)
@@ -140,7 +170,7 @@ namespace S3_webshop.Controllers
 
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Order>> DeleteOrder(int id)
         {
             var order = await _orderService.GetById(id);

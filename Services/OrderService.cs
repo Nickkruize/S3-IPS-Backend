@@ -30,6 +30,17 @@ namespace Services
             return await _orderRepo.GetOrderByUserId(id);
         }
 
+        public async Task<List<Order>> GetOrdersByUserId(string id)
+        {
+            var result =  await _orderRepo.GetOrdersByUserId(id);
+            return result;
+        }
+
+        public async Task<Order> GetOrderByUserId(string id)
+        {
+            return await _orderRepo.GetOrderByUserId(id);
+        }
+
         public async Task<bool> DeleteOrder(Order order)
         {
             if (order != null)

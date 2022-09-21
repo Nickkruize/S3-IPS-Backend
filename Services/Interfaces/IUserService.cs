@@ -14,5 +14,9 @@ namespace Services.Interfaces
         Task Save();
         Task<List<IdentityRole>> GetUserRoles(IdentityUser user);
         Task<IdentityUser> GetById(string id);
+        Task<bool> CheckPassword(IdentityUser user, string password);
+        Task<IdentityResult> CheckCreation(IdentityUser user, string password);
+        Task<IdentityResult> AddRoleToNewUser(IdentityUser user);
+        Task<IdentityResult> Delete(IdentityUser user);
     }
 }

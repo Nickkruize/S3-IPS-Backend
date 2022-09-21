@@ -28,6 +28,7 @@ namespace S3_webshop.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<UserResource>>> Get()
         {
             try
@@ -63,7 +64,7 @@ namespace S3_webshop.Controllers
             }
         }
 
-        [HttpGet("GetByName/{name}")]
+        [HttpGet("GetByName/{Name}")]
         public async Task<ActionResult<UserResource>> GetByName(string name)
         {
             try
@@ -85,7 +86,7 @@ namespace S3_webshop.Controllers
             }
         }
 
-        [HttpGet("GetByEmail/{email}")]
+        [HttpGet("GetByEmail/{Email}")]
         public async Task<ActionResult<UserResource>> GetByEmail(string email)
         {
             try
@@ -100,6 +101,35 @@ namespace S3_webshop.Controllers
 
                 return Ok(userResource);
 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> Delete(string userId)
+        {
+            try
+            {
+                IdentityUser user = await _userService.GetById(userId);
+                if (user == null)
+                {
+                    return NotFound("This user does not exist");
+                }
+
+                IdentityResult result = await _userService.Delete(user);
+                if (result.Succeeded)
+                {
+                    return NoContent();
+                }
+                else
+                {
+                    return StatusCode(500, result.Errors);
+                }
+                
             }
             catch (Exception ex)
             {

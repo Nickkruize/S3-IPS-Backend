@@ -9,5 +9,6 @@ namespace Repositories.Interfaces
         Task<List<Order>> GetAllOrdersWithRelatedData();
         Task<Order> GetOrderByIdWithRelatedData(int id);
         Task<Order> GetOrderByUserId(string id);
+        Task<List<Order>> GetOrdersByUserId(string id);
     }
 }
