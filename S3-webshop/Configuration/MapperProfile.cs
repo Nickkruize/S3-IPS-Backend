@@ -14,12 +14,15 @@ namespace S3_webshop.Configuration
             CreateMap<Product, ProductWithCategoriesResource>();
             CreateMap<Product, ProductWithCategoriesResource>()
                 .ForMember(dto => dto.Categories, opt => opt.MapFrom(x => x.Categories));
+            CreateMap<Product, ProductResource>();
+            CreateMap<ProductResource, Product>();
 
             CreateMap<CategoryResource, Category>();
             CreateMap<NewCategoryResource, Category>();
             CreateMap<Category, CategoryResource>();
             CreateMap<Category, CategoryProductResource>()
                 .ForMember(dto => dto.Products, opt => opt.MapFrom(x => x.Products));
+            CreateMap<UpdateCategoryResource, Category>();
 
             CreateMap<IdentityUser, UserResource>();
             CreateMap<UserResource, IdentityUser>();

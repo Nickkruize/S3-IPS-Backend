@@ -19,12 +19,14 @@ namespace S3_webshop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
 
 
-        public ProductController(IProductService productService, IMapper mapper)
+        public ProductController(IProductService productService, IMapper mapper, ICategoryService categoryService)
         {
             _productService = productService;
+            _categoryService = categoryService;
             _mapper = mapper;
         }
 
@@ -70,16 +72,28 @@ namespace S3_webshop.Controllers
                 return BadRequest("Invalid Information");
             }
 
-            Product updatedProduct = _mapper.Map<ProductWithCategoriesResource, Product>(product);
+            Product currentProduct = await _productService.GetByIdWithCategories(id);
+            Category category = await _categoryService.GetById(categoryId);
 
-            if (id != product.Id)
+            if (currentProduct == null)
             {
                 return BadRequest("submitted Id doesn't match the productId");
             }
 
+            if (category == null)
+            {
+                return BadRequest("This category does not exist");
+            }
+
+            if (currentProduct.Categories.Contains(category))
+            {
+                return BadRequest("This product is already assigned to this category");
+            }
+
             try
             {
-                await _productService.Update(updatedProduct, categoryId);
+                await _productService.Update(currentProduct, categoryId);
+                return CreatedAtAction(nameof(Get), new { id = currentProduct.Id }, currentProduct);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -92,8 +106,6 @@ namespace S3_webshop.Controllers
                     return BadRequest(ex.Message);
                 }
             }
-
-            return CreatedAtAction(nameof(Get), new { id = updatedProduct.Id }, updatedProduct);
         }
 
         [HttpPost]

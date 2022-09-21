@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repositories.Interfaces;
 using S3_webshop.Resources;
+using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +21,13 @@ namespace S3_webshop.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryRepo _categoryRepo;
+        private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
 
-        public CategoryController(ICategoryRepo categoryRepo, IMapper mapper)
+        public CategoryController(ICategoryRepo categoryRepo, IMapper mapper, ICategoryService categoryService)
         {
             _categoryRepo = categoryRepo;
+            _categoryService = categoryService;
             _mapper = mapper;
         }
         // GET: api/<CategoryController>
@@ -33,7 +36,7 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                IEnumerable<Category> categories = await _categoryRepo.FindAll();
+                IEnumerable<Category> categories = await _categoryService.GetAll();
                 return _mapper.Map<List<Category>, List<CategoryResource>>(categories.ToList());
             }
             catch(Exception ex)
@@ -48,12 +51,12 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                if (await _categoryRepo.GetById(id) == null)
+                Category category = await _categoryRepo.FindByIdWithProducts(id);
+
+                if (category == null)
                 {
                     return NotFound();
                 }
-
-                Category category = await _categoryRepo.FindByIdWithProducts(id);
 
                 CategoryProductResource result = _mapper.Map<Category, CategoryProductResource>(category);
                 return Ok(result);
@@ -88,24 +91,25 @@ namespace S3_webshop.Controllers
 
         // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CategoryResource vm)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateCategoryResource vm)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            Category category = _mapper.Map<CategoryResource, Category>(vm);
-
-            if (id != vm.Id)
-            {
-                return BadRequest();
-            }
-
             try
             {
-                _categoryRepo.Update(category);
-                await _categoryRepo.Save();
+                Category category = await _categoryService.GetById(id);
+                if (category == null)
+                {
+                    return BadRequest("This product can't be altered as it doesn't exist");
+                }
+
+                category.Name = vm.Name;
+                category.ImgUrl = vm.ImgUrl;
+                await _categoryService.Update(category);
+                return CreatedAtAction(nameof(Get), new { id = category.Id }, category);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -118,8 +122,6 @@ namespace S3_webshop.Controllers
                     return BadRequest(ex.Message);
                 }
             }
-
-            return CreatedAtAction("Get", new { id }, category);
         }
 
         // DELETE api/<CategoryController>/5
@@ -128,15 +130,14 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                Category category = await _categoryRepo.GetById(id);
+                Category category = await _categoryService.GetById(id);
                 
                 if (category == null)
                 {
                     return NotFound();
                 }
 
-                _categoryRepo.Delete(category);
-                await _categoryRepo.Save();
+                await _categoryService.Delete(category);
                 return Accepted("category deleted");
             }
             catch (Exception ex)

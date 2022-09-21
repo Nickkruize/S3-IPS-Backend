@@ -103,6 +103,7 @@ namespace S3_webshop
                     services.AddScoped<IProductRepo, ProductRepo>();
                     services.AddScoped<IProductService, ProductService>();
                     services.AddScoped<ICategoryRepo, CategoryRepo>();
+                    services.AddScoped<ICategoryService, CategoryService>();
                     services.AddScoped<IUserRepo, UserRepo>();
                     services.AddScoped<IOrderRepo, OrderRepo>();
                     services.AddScoped<IOrderItemRepo, OrderItemRepo>();

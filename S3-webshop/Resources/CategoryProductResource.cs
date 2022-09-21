@@ -6,11 +6,11 @@ namespace S3_webshop.Resources
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<ProductWithCategoriesResource> Products { get; set; }
+        public List<ProductResource> Products { get; set; }
 
         public CategoryProductResource()
         {
-            Products = new List<ProductWithCategoriesResource>();
+            Products = new List<ProductResource>();
         }
     }
 }

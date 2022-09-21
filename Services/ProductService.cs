@@ -36,11 +36,7 @@ namespace Services
         public async Task Update(Product product, int categoryId)
         {
             Category category = await categoryRepo.GetById(categoryId);
-            List<Category> categories = new List<Category>
-            {
-                category
-            };
-            product.Categories = categories;
+            product.Categories.Add(category);
             productRepo.Update(product);
             await productRepo.Save();
         }
