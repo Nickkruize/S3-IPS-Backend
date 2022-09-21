@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +67,7 @@ namespace S3_webshop.Controllers
         }
 
         // POST api/<CategoryController>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] NewCategoryResource vm)
         {
@@ -86,6 +89,7 @@ namespace S3_webshop.Controllers
         }
 
         // PUT api/<CategoryController>/5
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateCategoryResource vm)
         {
@@ -121,6 +125,7 @@ namespace S3_webshop.Controllers
         }
 
         // DELETE api/<CategoryController>/5
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

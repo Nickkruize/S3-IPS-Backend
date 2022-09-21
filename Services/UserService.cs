@@ -20,14 +20,29 @@ namespace Services
             _roleManager = roleManager;
         }
 
-        public async Task<IEnumerable<User>> GetAll()
+        public IEnumerable<IdentityUser> GetAll()
         {
-            return await _userRepo.FindAll();
+            return _userManager.Users;
         }
 
         public async Task<User> GetById(int id)
         {
             return await _userRepo.GetById(id);
+        }
+
+        public async Task<IdentityUser> GetById(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
+        public async Task<IdentityUser> GetByName(string name)
+        {
+            return await _userManager.FindByNameAsync(name);
+        }
+
+        public async Task<IdentityUser> GetByEmail(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
         }
 
         public async Task Save()

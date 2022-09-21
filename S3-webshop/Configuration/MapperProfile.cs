@@ -26,6 +26,7 @@ namespace S3_webshop.Configuration
 
             CreateMap<IdentityUser, UserResource>();
             CreateMap<UserResource, IdentityUser>();
+            CreateMap<IdentityUser, User>();
             CreateMap<NewUserResource, User>();
 
             CreateMap<Order, OrdersResource>();

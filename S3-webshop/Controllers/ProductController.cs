@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using DAL.ContextModels;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +66,7 @@ namespace S3_webshop.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, ProductWithCategoriesResource product, int categoryId)
         {
@@ -108,6 +111,7 @@ namespace S3_webshop.Controllers
             }
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]NewProductResource input)
         {
@@ -137,6 +141,7 @@ namespace S3_webshop.Controllers
             return BadRequest("Invalid information");
         }
 
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
