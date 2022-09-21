@@ -72,32 +72,6 @@ namespace S3_webshop.Controllers
             }
         }
 
-        [HttpGet("GetByUser/{userId}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<List<OrdersResource>>> GetOrdersByUser(string userId)
-        {
-            try
-            {
-                var order = await _orderService.GetOrderByUserId(userId);
-
-                if (order == null)
-                {
-                    return NotFound();
-                }
-
-                OrdersResource result = _mapper.Map<Order, OrdersResource>(order);
-                if (result == null)
-                {
-                    return NotFound("No orders found for this user");
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.InnerException.Message);
-            }
-        }
-
         [HttpGet("GetOrders/{userId}")]
         [AllowAnonymous]
         public async Task<ActionResult<List<OrdersResource>>> GetOrders(string userId)
@@ -143,7 +117,7 @@ namespace S3_webshop.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!OrderExists(id))
+                if (_orderService.GetById(id) == null)
                 {
                     return NotFound();
                 }
@@ -162,10 +136,9 @@ namespace S3_webshop.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
+            Order result = await _orderService.CreateOrder(order);
 
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
+            return CreatedAtAction("GetOrder", new { id = result.Id }, result);
         }
 
         // DELETE: api/Orders/5
@@ -186,11 +159,6 @@ namespace S3_webshop.Controllers
             }
 
             return StatusCode(500, "Error deleting the order");
-        }
-
-        private bool OrderExists(int id)
-        {
-            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

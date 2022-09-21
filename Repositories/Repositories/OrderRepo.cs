@@ -36,13 +36,9 @@ namespace Repositories.Repositories
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public async Task<Order> GetOrderByUserId(string id)
+        public async Task<Order> GetOrderById(int id)
         {
-            return await _context.Orders
-                .Include(e => e.OrderItems)
-                .ThenInclude(o => o.Product)
-                .Include(e => e.User)
-                .FirstOrDefaultAsync(o => o.User.Id == id);
+            return await _context.Orders.FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<List<Order>> GetOrdersByUserId(string id)

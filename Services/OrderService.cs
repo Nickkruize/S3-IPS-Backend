@@ -25,20 +25,10 @@ namespace Services
             return await _orderRepo.GetOrderByIdWithRelatedData(id);
         }
 
-        public async Task<Order> GetByUserId(string id)
-        {
-            return await _orderRepo.GetOrderByUserId(id);
-        }
-
         public async Task<List<Order>> GetOrdersByUserId(string id)
         {
             var result =  await _orderRepo.GetOrdersByUserId(id);
             return result;
-        }
-
-        public async Task<Order> GetOrderByUserId(string id)
-        {
-            return await _orderRepo.GetOrderByUserId(id);
         }
 
         public async Task<bool> DeleteOrder(Order order)
@@ -58,6 +48,14 @@ namespace Services
             }
 
             return false;
+        }
+
+        public async Task<Order> CreateOrder(Order order)
+        {
+            Order result = await _orderRepo.Create(order);
+            await _orderRepo.Save();
+            return result;
+
         }
     }
 }

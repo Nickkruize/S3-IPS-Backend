@@ -8,9 +8,8 @@ namespace Services.Interfaces
     {
         Task<Order> GetById(int id);
         Task<List<Order>> GetAll();
-        Task<Order> GetByUserId(string id);
         Task<List<Order>> GetOrdersByUserId(string id);
-        Task<Order> GetOrderByUserId(string id);
         Task<bool> DeleteOrder(Order order);
+        Task<Order> CreateOrder(Order order);
     }
 }
