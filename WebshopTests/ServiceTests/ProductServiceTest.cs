@@ -318,53 +318,53 @@ namespace WebshopTests.ServiceTests
             Assert.IsTrue(productToUpdate.IsDeepEqual(products[1]));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "Failed")]
-        public async Task UpdateProductFailsWhenSaving()
-        {
-            var testProductRepository = new Mock<IProductRepo>();
-            testProductRepository.Setup(arg => arg.Save())
-                .Throws(new Exception("Failed"));
+        //[TestMethod]
+        //[ExpectedException(typeof(Exception), "Failed")]
+        //public async Task UpdateProductFailsWhenSaving()
+        //{
+        //    var testProductRepository = new Mock<IProductRepo>();
+        //    testProductRepository.Setup(arg => arg.Save())
+        //        .Throws(new Exception("Failed"));
 
-            var categoryRepository = new Mock<ICategoryRepo>();
+        //    var categoryRepository = new Mock<ICategoryRepo>();
 
-            ProductService service = new ProductService(testProductRepository.Object, categoryRepository.Object);
+        //    ProductService service = new ProductService(testProductRepository.Object, categoryRepository.Object);
 
-            Product productToAdd = new Product
-            {
-                Id = 3,
-                ImgUrl = "new",
-                Description = "new",
-                Name = "new",
-                Price = 10.10
-            };
+        //    Product productToAdd = new Product
+        //    {
+        //        Id = 3,
+        //        ImgUrl = "new",
+        //        Description = "new",
+        //        Name = "new",
+        //        Price = 10.10
+        //    };
 
-            await service.Update(productToAdd, 3);
-        }
+        //    await service.Update(productToAdd, 3);
+        //}
 
-        [TestMethod]
-        [ExpectedException(typeof(Exception), "Failed")]
-        public async Task UpdateProductFailsWhenUpdating()
-        {
-            var testProductRepository = new Mock<IProductRepo>();
-            testProductRepository.Setup(arg => arg.Update(It.IsAny<Product>()))
-                .Throws(new Exception("Failed"));
+        //[TestMethod]
+        //[ExpectedException(typeof(Exception), "Failed")]
+        //public async Task UpdateProductFailsWhenUpdating()
+        //{
+        //    var testProductRepository = new Mock<IProductRepo>();
+        //    testProductRepository.Setup(arg => arg.Update(It.IsAny<Product>()))
+        //        .Throws(new Exception("Failed"));
 
-            var categoryRepository = new Mock<ICategoryRepo>();
+        //    var categoryRepository = new Mock<ICategoryRepo>();
 
-            ProductService service = new ProductService(testProductRepository.Object, categoryRepository.Object);
+        //    ProductService service = new ProductService(testProductRepository.Object, categoryRepository.Object);
 
-            Product productToAdd = new Product
-            {
-                Id = 3,
-                ImgUrl = "new",
-                Description = "new",
-                Name = "new",
-                Price = 10.10
-            };
+        //    Product productToAdd = new Product
+        //    {
+        //        Id = 3,
+        //        ImgUrl = "new",
+        //        Description = "new",
+        //        Name = "new",
+        //        Price = 10.10
+        //    };
 
-            await service.Update(productToAdd, 3);
-        }
+        //    await service.Update(productToAdd, 3);
+        //}
 
         [TestMethod]
         public async Task AppendingCategoriesToProductSucceeds()

@@ -12,5 +12,7 @@ namespace Services.Interfaces
         Task<Category> GetById(int id);
         Task Delete(Category category);
         Task Update(Category category);
+        Task<Category> AddCategory(Category category);
+        Task<Category> GetByIdWithProduct(int id);
     }
 }

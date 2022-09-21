@@ -3,7 +3,6 @@ using DAL.ContextModels;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Repositories.Interfaces;
 using S3_webshop.Resources;
 using Services.Interfaces;
 using System;
@@ -20,13 +19,11 @@ namespace S3_webshop.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepo _categoryRepo;
         private readonly ICategoryService _categoryService;
         private readonly IMapper _mapper;
 
-        public CategoryController(ICategoryRepo categoryRepo, IMapper mapper, ICategoryService categoryService)
+        public CategoryController(IMapper mapper, ICategoryService categoryService)
         {
-            _categoryRepo = categoryRepo;
             _categoryService = categoryService;
             _mapper = mapper;
         }
@@ -51,7 +48,7 @@ namespace S3_webshop.Controllers
         {
             try
             {
-                Category category = await _categoryRepo.FindByIdWithProducts(id);
+                Category category = await _categoryService.GetByIdWithProduct(id);
 
                 if (category == null)
                 {
@@ -79,8 +76,7 @@ namespace S3_webshop.Controllers
             try
             {
                 Category category = _mapper.Map<NewCategoryResource, Category>(vm);
-                await _categoryRepo.Create(category);
-                await _categoryRepo.Save();
+                await _categoryService.AddCategory(category);
                 return CreatedAtAction(nameof(Get), new { id = category.Id }, category);
             }
             catch (Exception ex)
@@ -149,7 +145,7 @@ namespace S3_webshop.Controllers
         [NonAction]
         private bool CategoryExists(int id)
         {
-            if (_categoryRepo.GetById(id) != null)
+            if (_categoryService.GetById(id) != null)
             {
                 return true;
             }

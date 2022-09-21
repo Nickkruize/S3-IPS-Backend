@@ -26,6 +26,11 @@ namespace Services
             return await _categoryRepo.GetById(id);
         }
 
+        public async Task<Category> GetByIdWithProduct(int id)
+        {
+            return await _categoryRepo.FindByIdWithProducts(id);
+        }
+
         public async Task Delete(Category category)
         {
             _categoryRepo.Delete(category);
@@ -36,6 +41,13 @@ namespace Services
         {
             _categoryRepo.Update(category);
             await _categoryRepo.Save();
+        }
+
+        public async Task<Category> AddCategory(Category category)
+        {
+            Category result = await _categoryRepo.Create(category);
+            await _categoryRepo.Save();
+            return result;
         }
     }
 }
