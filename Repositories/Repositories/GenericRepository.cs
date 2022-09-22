@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Repositories.Repositories
 {
@@ -51,6 +52,18 @@ namespace Repositories.Repositories
             return entity;
         }
 
+        public EntityEntry Delete2(T entity)
+        {
+            EntityEntry result = this.RepositoryContext.Set<T>().Remove(entity);
+            return result;
+        }
+
+        public IEnumerable<T> DeleteRange (List<T> entities)
+        {
+            this.RepositoryContext.Set<T>().RemoveRange(entities);
+            return entities;
+        }
+        
         public async Task Save()
         {
             await this.RepositoryContext.SaveChangesAsync();

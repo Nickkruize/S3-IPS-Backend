@@ -40,11 +40,15 @@ namespace S3_webshop.Controllers
                 IEnumerable<Product> products = await _productService.GetAllWithCategories();
                 return Ok(_mapper.Map<List<Product>, List<ProductWithCategoriesResource>>(products.ToList()));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return StatusCode(500, ex.InnerException.Message);
+                }
+
                 return StatusCode(500, ex.Message);
             }
-
         }
 
         [HttpGet("{id}")]
@@ -62,12 +66,16 @@ namespace S3_webshop.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return StatusCode(500, ex.InnerException.Message);
+                }
+
                 return StatusCode(500, ex.Message);
             }
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, ProductWithCategoriesResource product, int categoryId)
         {
@@ -81,7 +89,7 @@ namespace S3_webshop.Controllers
 
             if (currentProduct == null)
             {
-                return BadRequest("submitted Id doesn't match the productId");
+                return BadRequest("Product does not exist");
             }
 
             if (category == null)
@@ -89,31 +97,28 @@ namespace S3_webshop.Controllers
                 return BadRequest("This category does not exist");
             }
 
-            if (currentProduct.Categories.Contains(category))
+            if (currentProduct.Categories != null && currentProduct.Categories.Contains(category))
             {
                 return BadRequest("This product is already assigned to this category");
             }
 
             try
             {
-                await _productService.Update(currentProduct, categoryId);
-                return CreatedAtAction(nameof(Get), new { id = currentProduct.Id }, currentProduct);
+                var result = await _productService.Update(currentProduct, categoryId);
+                return CreatedAtAction(nameof(Get), new { id = result.Id }, result);
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (Exception ex)
             {
-                if (await _productService.GetById(id) == null)
+                if (ex.InnerException != null)
                 {
-                    return NotFound("This product doesn't exist");
+                    return StatusCode(500, ex.InnerException.Message);
                 }
-                else
-                {
-                    return BadRequest(ex.Message);
-                }
+
+                return StatusCode(500, ex.Message);
             }
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]NewProductResource input)
         {
@@ -136,6 +141,11 @@ namespace S3_webshop.Controllers
                 }
                 catch (Exception ex)
                 {
+                    if (ex.InnerException != null)
+                    {
+                        return StatusCode(500, ex.InnerException.Message);
+                    }
+
                     return StatusCode(500, ex.Message);
                 }
             }
@@ -143,8 +153,7 @@ namespace S3_webshop.Controllers
             return BadRequest("Invalid information");
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -162,6 +171,11 @@ namespace S3_webshop.Controllers
             }
             catch (Exception ex)
             {
+                if (ex.InnerException != null)
+                {
+                    return StatusCode(500, ex.InnerException.Message);
+                }
+
                 return StatusCode(500, ex.Message);
             }
         }

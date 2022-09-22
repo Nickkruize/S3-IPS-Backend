@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Repositories.Interfaces
 {
@@ -13,6 +14,8 @@ namespace Repositories.Interfaces
         Task<T> Create(T entity);
         void Update(T entity);
         T Delete(T entity);
+        EntityEntry Delete2(T entity);
+        IEnumerable<T> DeleteRange(List<T> entities);
         Task Save();
     }
 }

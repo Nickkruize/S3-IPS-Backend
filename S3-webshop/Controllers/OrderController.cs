@@ -138,6 +138,11 @@ namespace S3_webshop.Controllers
         {
             Order result = await _orderService.CreateOrder(order);
 
+            if (result == null)
+            {
+                return BadRequest("Order could not be created");
+            }
+
             return CreatedAtAction("GetOrder", new { id = result.Id }, result);
         }
 

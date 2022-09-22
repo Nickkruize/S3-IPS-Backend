@@ -340,36 +340,48 @@ namespace WebshopTests.ControllerTests
             Assert.AreEqual(204, result.StatusCode);
         }
 
-        //[TestMethod]
-        //public async Task PutReturns201IfUpdateSuccesful()
-        //{
-        //    var categoryService = new Mock<ICategoryService>();
-        //    List<Category> categories = GetCategories();
-        //    categoryService.Setup(arg => arg.GetById(It.IsAny<int>()))
-        //        .ReturnsAsync((int i) => categories.FirstOrDefault(c => c.Id == i));
-        //    var service = new Mock<IProductService>();
-        //    List<Product> products = GetProducts();
-        //    service.Setup(arg => arg.GetByIdWithCategories(It.IsAny<int>()))
-        //        .ReturnsAsync((int i) => products.FirstOrDefault(c => c.Id == i));
-        //    ProductController controller = new ProductController(service.Object, _mapper, categoryService.Object);
+        [TestMethod]
+        public async Task PutReturns201IfUpdateSuccesful()
+        {
+            Product returnFunction = new Product()
+            {
+                Id = 1,
+                ImgUrl = "MooiProduct.jpg",
+                Description = "beschrijving",
+                Name = "Mooi Product",
+                Price = 9.99,
+                Categories = GetCategories()
+            };
+            returnFunction.Categories = GetCategories();
+            var categoryService = new Mock<ICategoryService>();
+            List<Category> categories = GetCategories();
+            categoryService.Setup(arg => arg.GetById(It.IsAny<int>()))
+                .ReturnsAsync((int i) => categories.FirstOrDefault(c => c.Id == i));
+            var service = new Mock<IProductService>();
+            List<Product> products = GetProducts();
+            service.Setup(arg => arg.GetByIdWithCategories(It.IsAny<int>()))
+                .ReturnsAsync((int i) => products.FirstOrDefault(c => c.Id == i));
+            service.Setup(arg => arg.Update(It.IsAny<Product>(), It.IsAny<int>()))
+                .Returns(Task.FromResult(returnFunction));
+            ProductController controller = new ProductController(service.Object, _mapper, categoryService.Object);
 
-        //    List<CategoryResource> categoryResources = _mapper.Map<List<Category>, List<CategoryResource>>(GetCategories());
-        //    ProductWithCategoriesResource input = new ProductWithCategoriesResource
-        //    {
-        //        Id = 1,
-        //        imgUrl = "MooiProduct.jpg",
-        //        Description = "beschrijving",
-        //        Name = "Mooi Product",
-        //        Price = 9.99,
-        //        Categories = categoryResources
-        //    };
+            List<CategoryResource> categoryResources = _mapper.Map<List<Category>, List<CategoryResource>>(GetCategories());
+            ProductWithCategoriesResource input = new ProductWithCategoriesResource
+            {
+                Id = 1,
+                imgUrl = "MooiProduct.jpg",
+                Description = "beschrijving",
+                Name = "Mooi Product",
+                Price = 9.99,
+                Categories = categoryResources
+            };
 
-        //    Product expected = _mapper.Map<ProductWithCategoriesResource, Product>(input);
+            Product expected = _mapper.Map<ProductWithCategoriesResource, Product>(input);
 
-        //    var result = await controller.Put(1, input, 1) as ObjectResult;
-        //    Assert.AreEqual(201, result.StatusCode);
-        //    Assert.IsTrue(expected.IsDeepEqual(result.Value));
-        //}
+            var result = await controller.Put(1, input, 1) as ObjectResult;
+            Assert.AreEqual(201, result.StatusCode);
+            Assert.IsTrue(expected.IsDeepEqual(result.Value));
+        }
 
         [TestMethod]
         public async Task PutReturnsBadRequestWhenModelStateIsInvalid()
@@ -388,7 +400,7 @@ namespace WebshopTests.ControllerTests
         }
 
         [TestMethod]
-        public async Task PutReturns400IfIdDoesntMatchIdInModel()
+        public async Task PutReturns400IfProductNotFound()
         {
             var categoryService = new Mock<ICategoryService>();
             var service = new Mock<IProductService>();
@@ -408,67 +420,68 @@ namespace WebshopTests.ControllerTests
             var result = await controller.Put(2, input, 3) as BadRequestObjectResult;
 
             Assert.AreEqual(400, result.StatusCode);
-            Assert.AreEqual("submitted Id doesn't match the productId", result.Value);
+            Assert.AreEqual("Product does not exist", result.Value);
         }
 
-        //[TestMethod]
-        //public async Task PutReturnsBadRequestIfProductNotInDB()
-        //{
-        //    var categoryService = new Mock<ICategoryService>();
-        //    List<Product> products = GetProducts();
-        //    var service = new Mock<IProductService>();
-        //    service.Setup(s => s.Update(It.IsAny<Product>(), It.IsAny<int>())).Throws(new DbUpdateConcurrencyException("Db Update Failed"));
-        //    service.Setup(arg => arg.GetById(It.IsAny<int>()))
-        //        .ReturnsAsync((int i) => products.FirstOrDefault(c => c.Id == i));
-        //    ProductController controller = new ProductController(service.Object, _mapper, categoryService.Object);
+        [TestMethod]
+        public async Task PutReturnsBadRequestIfProductNotInDB()
+        {
+            var categoryService = new Mock<ICategoryService>();
+            List<Product> products = GetProducts();
+            var service = new Mock<IProductService>();
+            service.Setup(s => s.Update(It.IsAny<Product>(), It.IsAny<int>())).Throws(new DbUpdateConcurrencyException("Db Update Failed"));
+            service.Setup(arg => arg.GetById(It.IsAny<int>()))
+                .ReturnsAsync((int i) => products.FirstOrDefault(c => c.Id == i));
+            ProductController controller = new ProductController(service.Object, _mapper, categoryService.Object);
 
-        //    List<CategoryResource> categoryResources = _mapper.Map<List<Category>, List<CategoryResource>>(GetCategories());
-        //    ProductWithCategoriesResource input = new ProductWithCategoriesResource
-        //    {
-        //        Id = 10,
-        //        imgUrl = "MooiProduct.jpg",
-        //        Description = "beschrijving",
-        //        Name = "Mooi Product",
-        //        Price = 9.99,
-        //        Categories = categoryResources
-        //    };
+            List<CategoryResource> categoryResources = _mapper.Map<List<Category>, List<CategoryResource>>(GetCategories());
+            ProductWithCategoriesResource input = new ProductWithCategoriesResource
+            {
+                Id = 10,
+                imgUrl = "MooiProduct.jpg",
+                Description = "beschrijving",
+                Name = "Mooi Product",
+                Price = 9.99,
+                Categories = categoryResources
+            };
 
-        //    var result = await controller.Put(10, input, 4) as NotFoundObjectResult;
+            var result = await controller.Put(10, input, 4) as BadRequestObjectResult;
 
-        //    Assert.AreEqual(404, result.StatusCode);
-        //    Assert.AreEqual("This product doesn't exist", result.Value);
-        //}
+            Assert.AreEqual(400, result.StatusCode);
+            Assert.AreEqual("Product does not exist", result.Value);
+        }
 
-        //[TestMethod]
-        //public async Task PutReturnsBadRequestIfDbUpdateFailedButIdExists()
-        //{
-        //    var categoryService = new Mock<ICategoryService>();
-        //    List<Category> categories = GetCategories();
-        //    categoryService.Setup(arg => arg.GetById(It.IsAny<int>()))
-        //        .ReturnsAsync((int i) => categories.FirstOrDefault(c => c.Id == i));
-        //    List<Product> products = GetProducts();
-        //    var service = new Mock<IProductService>();
-        //    service.Setup(s => s.Update(It.IsAny<Product>(), It.IsAny<int>())).Throws(new DbUpdateConcurrencyException("Db Update Failed"));
-        //    service.Setup(arg => arg.GetById(It.IsAny<int>()))
-        //        .ReturnsAsync((int i) => products.FirstOrDefault(c => c.Id == i));
-        //    ProductController controller = new ProductController(service.Object, _mapper, categoryService.Object);
+        [TestMethod]
+        public async Task PutReturnsErrorMessageIfDbUpdateFailedButIdExists()
+        {
+            var categoryService = new Mock<ICategoryService>();
+            List<Category> categories = GetCategories();
+            categoryService.Setup(arg => arg.GetById(It.IsAny<int>()))
+                .ReturnsAsync((int i) => categories.FirstOrDefault(c => c.Id == i));
+            List<Product> products = GetProducts();
+            var service = new Mock<IProductService>();
+            service.Setup(s => s.Update(It.IsAny<Product>(), It.IsAny<int>()))
+                .Throws(new DbUpdateConcurrencyException("Db Update Failed"));
+            service.Setup(arg => arg.GetByIdWithCategories(It.IsAny<int>()))
+                .ReturnsAsync((int i) => products.FirstOrDefault(c => c.Id == i));
+            ProductController controller = new ProductController(service.Object, _mapper, categoryService.Object);
 
-        //    List<CategoryResource> categoryResources = _mapper.Map<List<Category>, List<CategoryResource>>(GetCategories());
-        //    ProductWithCategoriesResource input = new ProductWithCategoriesResource
-        //    {
-        //        Id = 1,
-        //        imgUrl = "MooiProduct.jpg",
-        //        Description = "beschrijving",
-        //        Name = "Mooi Product",
-        //        Price = 9.99,
-        //        Categories = categoryResources
-        //    };
+            List<CategoryResource> categoryResources =
+                _mapper.Map<List<Category>, List<CategoryResource>>(GetCategories());
+            ProductWithCategoriesResource input = new ProductWithCategoriesResource
+            {
+                Id = 1,
+                imgUrl = "MooiProduct.jpg",
+                Description = "beschrijving",
+                Name = "Mooi Product",
+                Price = 9.99,
+                Categories = categoryResources
+            };
 
-        //    var result = await controller.Put(1, input, 4) as BadRequestObjectResult;
+            var result = await controller.Put(1, input, 1) as ObjectResult;
 
-        //    Assert.AreEqual(400, result.StatusCode);
-        //    Assert.AreEqual("Db Update Failed", result.Value);
-        //}
-
+            Assert.AreEqual(500, result.StatusCode);
+            Assert.AreEqual("Db Update Failed", result.Value);
+        }
     }
 }

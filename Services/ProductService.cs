@@ -4,6 +4,7 @@ using Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Services
 {
@@ -33,12 +34,13 @@ namespace Services
             return await productRepo.FindByIdWithCategoires(id);
         }
 
-        public async Task Update(Product product, int categoryId)
+        public async Task<Product> Update(Product product, int categoryId)
         {
             Category category = await categoryRepo.GetById(categoryId);
             product.Categories.Add(category);
             productRepo.Update(product);
             await productRepo.Save();
+            return product;
         }
 
         public async Task<Product> Delete(Product product)
@@ -46,6 +48,13 @@ namespace Services
             productRepo.Delete(product);
             await productRepo.Save();
             return product;
+        }
+
+        public async Task<EntityEntry> Delete2(Product product)
+        {
+            var result = productRepo.Delete2(product);
+            await productRepo.Save();
+            return result;
         }
 
         public async Task<Product> AddProduct(Product product)
